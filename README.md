@@ -11,6 +11,8 @@ checks, analytics dashboard, ten reports with Excel / CSV / PDF export, barcode 
 screens, English / Marathi / Hindi. **Not built yet:** returns and bill cancellation, purchases and suppliers,
 expenses, day closing, backup, Windows desktop build, mobile app. See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
+Day-to-day commands, demo logins and a 15-minute demo script are in [HOW_TO_RUN.md](HOW_TO_RUN.md).
+
 ## Run it on a development PC
 
 Needs PHP 8.3+ (with `pdo_sqlite`, `mbstring`, `intl`, `bcmath`), Composer 2 and Node.js 20+.
