@@ -10,15 +10,26 @@ php artisan serve --port=8000
 
 Then open **http://localhost:8000** in Chrome or Edge. Keep that PowerShell window open while you use the app.
 
-To use it from a phone on the same Wi-Fi, start it with your PC's address instead (find it with `ipconfig`,
-"IPv4 Address"), for example:
+### On a phone (same Wi-Fi as the PC)
+
+Start the server so that other devices can reach it:
 
 ```powershell
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-and open `http://<your-pc-ip>:8000` on the phone. (Windows Firewall may ask once — allow it. On a plain `http`
-address the phone's camera scanner works in "take a photo" mode; live scanning needs https or hosting.)
+Then open **http://192.168.0.108:8000** on the phone (that is this PC's Wi-Fi address today; check with
+`ipconfig` → "Wireless LAN adapter Wi-Fi" → "IPv4 Address" if the Wi-Fi changed, and update the
+`SANCTUM_STATEFUL_DOMAINS` line in `.env` to the new `address:8000`, otherwise the login is refused).
+
+The first time, allow it through Windows Firewall — run **PowerShell as Administrator** once:
+
+```powershell
+netsh advfirewall firewall add rule name="AUSHVAN 8000" dir=in action=allow protocol=TCP localport=8000
+```
+
+On the phone, use the browser's menu → "Add to Home screen" to get an app icon. On a plain `http` address the
+camera scanner works in "take a photo of the barcode" mode; live scanning needs https (hosting).
 
 ## 2. Demo shop and logins
 
