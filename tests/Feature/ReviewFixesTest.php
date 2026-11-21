@@ -83,7 +83,7 @@ class ReviewFixesTest extends TestCase
         $this->putJson("/api/v1/users/{$this->manager->id}", $self(['store_manager', 'cashier']))->assertForbidden();
 
         $this->assertFalse($this->manager->refresh()->isOwner());
-        $this->assertSame('Asha Patil', $this->owner->refresh()->name);
+        $this->assertSame(config('shop.demo.owner_name'), $this->owner->refresh()->name); // the demo owner's name comes from DEMO_OWNER_NAME
 
         // A role within their own permissions is fine, and so is editing someone without changing roles.
         $this->postJson('/api/v1/users', $new(['store_manager']))->assertCreated();
