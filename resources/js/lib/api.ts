@@ -86,7 +86,13 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
     return data as T;
 }
 
-/** Unique key for one "create" action. Reuse the same key when retrying the same action. */
+/**
+ * Unique key for one "create" action. Reuse the same key when retrying the same action.
+ * crypto.randomUUID exists only on https/localhost; a phone opening the shop PC over plain http has none,
+ * so the key is made from getRandomValues, which every browser has.
+ */
 export function newIdempotencyKey(): string {
-    return crypto.randomUUID();
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' + hex.slice(16, 20) + '-' + hex.slice(20);
 }

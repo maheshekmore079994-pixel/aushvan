@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Windows desktop build output (made by build/windows/make-desktop.ps1)
+/build/windows/dist
+/build/windows/stage
+/build/windows/out

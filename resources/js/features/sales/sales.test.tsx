@@ -669,3 +669,27 @@ describe('returns and cancellation', () => {
         expect(screen.getAllByText('Cancelled')).toHaveLength(1);
     });
 });
+
+describe('unknown barcode on the sale screen', () => {
+    it('offers to add the product with that barcode, but only to someone who may add products', async () => {
+        mockServer({ ...base(me({ permissions: ['sales.create', 'products.manage'] })), 'GET /pos/search': ok({ data: [], matched_barcode: false, barcode_unit: 'pack' }), 'GET /catalog/options': ok({ units: [], tax_rates: [], categories: [], drug_schedules: [], manufacturers: [], dosage_forms: [] }) });
+        const user = userEvent.setup();
+        renderApp('/sale');
+
+        await user.type(await screen.findByRole('searchbox'), '8901234567890{Enter}');
+        expect(await screen.findByText('No product has the barcode 8901234567890')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Add product with this barcode' }));
+        // The product form opens with the barcode filled in (the form itself is tested with the products).
+        expect(await screen.findByRole('heading', { name: /Add product|New product/i })).toBeInTheDocument();
+        expect(screen.getByDisplayValue('8901234567890')).toBeInTheDocument();
+    });
+
+    it('says "not found" only, when the cashier may not add products', async () => {
+        mockServer({ ...base(), 'GET /pos/search': ok({ data: [], matched_barcode: false, barcode_unit: 'pack' }) });
+        const user = userEvent.setup();
+        renderApp('/sale');
+        await user.type(await screen.findByRole('searchbox'), '8901234567890{Enter}');
+        expect(await screen.findByText('No product has the barcode 8901234567890')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Add product with this barcode' })).not.toBeInTheDocument();
+    });
+});

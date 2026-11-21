@@ -66,7 +66,7 @@ export function PosPage() {
     const queryClient = useQueryClient();
     const unit = useUnitLabel();
     const searchBox = useRef<HTMLInputElement>(null);
-    const { user } = useSession();
+    const { user, can } = useSession();
     const compact = useIsNarrow(1023); // phone or tablet: the bottom bar is showing
     const [cart, setCart] = useState<Cart>(() => loadCart(user.id));
     const [query, setQuery] = useState('');
@@ -74,6 +74,9 @@ export function PosPage() {
     const [highlight, setHighlight] = useState(0);
     const [paying, setPaying] = useState(false);
     const [pickingCustomer, setPickingCustomer] = useState(false);
+    const [unknownCode, setUnknownCode] = useState<string | null>(null); // a scanned number nobody has; offers "Add product"
+    const looksLikeBarcode = (text: string) => /^\d{6,}$/.test(text);
+    const addProductWith = (code: string) => navigate(`/products/new?barcode=${encodeURIComponent(code)}&then=sale`);
     const quick = useQuickItems();
     const preview = usePreview(cart.lines);
     const cartNow = useRef(cart); // read by the camera scanner, whose answers arrive between renders
@@ -144,7 +147,11 @@ export function PosPage() {
             // The scanner was closed while the lookup was on its way: the operator has moved on, add nothing.
             if (!stillOpen()) return;
             const product = found.matched_barcode ? found.data[0] : undefined;
-            if (!product) return { ok: false, text: t('scan.unknown', { code }) };
+            if (!product) {
+                setUnknownCode(code);
+                return { ok: false, text: t('scan.unknown', { code }), action: can('products.manage') ? { label: t('pos.add_with_barcode'), run: () => addProductWith(code) } : undefined };
+            }
+            setUnknownCode(null);
             if (product.stock_qty <= 0) return { ok: false, text: t('pos.out_of_stock', { name: product.name }) };
             const line = cartNow.current.lines.find((l) => l.product.id === product.id && l.unit === found.barcode_unit && l.batch_id === null);
             const qty = (line?.qty ?? 0) + 1;
@@ -177,6 +184,7 @@ export function PosPage() {
             const text = query.trim();
             if (text === '') return;
             const picked = highlight;
+            setUnknownCode(null);
             // Emptied before the lookup: a second scan may arrive while this one is still being looked up.
             setQuery('');
             setResults([]);
@@ -184,6 +192,7 @@ export function PosPage() {
                 const found = await searchProducts(text);
                 if (found.matched_barcode && found.data[0]) add(found.data[0], found.barcode_unit, true);
                 else if (found.data.length > 0) add(found.data[Math.min(picked, found.data.length - 1)], 'pack', true);
+                else if (looksLikeBarcode(text)) setUnknownCode(text);
                 else toast('error', t('pos.not_found', { text }));
             } catch {
                 toast('error', t('app.no_connection'));
@@ -273,6 +282,19 @@ export function PosPage() {
                     )}
                 </div>
 
+                {unknownCode && (
+                    <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/40 bg-warning-soft px-3 py-2">
+                        <span className="font-medium text-warning">{t('scan.unknown', { code: unknownCode })}</span>
+                        <span className="flex gap-2">
+                            {can('products.manage') && (
+                                <Button variant="secondary" onClick={() => addProductWith(unknownCode)}>
+                                    {t('pos.add_with_barcode')}
+                                </Button>
+                            )}
+                            <Button variant="ghost" aria-label={t('common.close')} onClick={() => setUnknownCode(null)} icon={<X className="size-5" aria-hidden />} />
+                        </span>
+                    </div>
+                )}
                 {cart.lines.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-line bg-white p-6 text-center text-ink-soft">{t('pos.empty')}</div>
                 ) : (

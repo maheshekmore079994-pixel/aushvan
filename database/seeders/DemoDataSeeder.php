@@ -87,11 +87,12 @@ class DemoDataSeeder extends Seeder
 
     private function shopAndUsers(): void
     {
+        $shop = config('shop.demo');
         $this->owner = app(SetUpShop::class)->handle([
-            'shop_name' => 'Shree Medical & General Stores',
-            'village' => 'Wadgaon',
-            'phone' => '9800000000',
-            'name' => 'Asha Patil',
+            'shop_name' => $shop['shop_name'],
+            'village' => $shop['village'],
+            'phone' => $shop['phone'],
+            'name' => $shop['owner_name'],
             'username' => 'owner',
             'password' => self::PASSWORD,
             'locale' => 'en',
@@ -99,16 +100,16 @@ class DemoDataSeeder extends Seeder
 
         $store = $this->owner->store;
         $store->update([
-            'legal_name' => 'Shree Medical & General Stores',
-            'address' => 'Main Road, near Bus Stand',
-            'taluka' => 'Maval',
-            'district' => 'Pune',
-            'pincode' => '412106',
+            'legal_name' => $shop['shop_name'],
+            'address' => $shop['address'],
+            'taluka' => $shop['taluka'],
+            'district' => $shop['district'],
+            'pincode' => $shop['pincode'],
             'gst_mode' => GstMode::Regular,
-            'gstin' => '27AAAAA0000A1Z5',
+            'gstin' => $shop['gstin'],
         ]);
-        $store->putSetting('drug_licence_20', 'MH-PZ4-000001');
-        $store->putSetting('drug_licence_21', 'MH-PZ4-000002');
+        $store->putSetting('drug_licence_20', $shop['drug_licence_20']);
+        $store->putSetting('drug_licence_21', $shop['drug_licence_21']);
         $store->putSetting('bill_footer', 'Thank you. Visit again.');
 
         foreach ([
@@ -331,10 +332,13 @@ class DemoDataSeeder extends Seeder
     {
         $storeId = $this->owner->store_id;
         $customers = [];
+        $here = config('shop.demo.village');
+        $nearby = array_values(array_filter(array_map('trim', explode(',', (string) config('shop.demo.nearby')))));
+        $nearby = $nearby === [] ? [$here] : $nearby;
         foreach ([
-            ['Ramesh Patil', '9800000010', 'Wadgaon', 200000], ['Sunita Jadhav', '9700000022', 'Wadgaon', 0],
-            ['Ganesh More', '9600000033', 'Kanhe', 100000], ['Lata Shinde', null, 'Wadgaon', 0],
-            ['Vitthal Pawar', '9500000044', 'Takwe', 0], ['Anganwadi Centre No. 3', '9400000055', 'Wadgaon', 500000],
+            ['Ramesh Patil', '9800000010', $here, 200000], ['Sunita Jadhav', '9700000022', $here, 0],
+            ['Ganesh More', '9600000033', $nearby[0], 100000], ['Lata Shinde', null, $here, 0],
+            ['Vitthal Pawar', '9500000044', $nearby[1] ?? $nearby[0], 0], ['Anganwadi Centre No. 3', '9400000055', $here, 500000],
         ] as [$name, $mobile, $village, $limit]) {
             $customer = Customer::create([
                 'ulid' => (string) Str::ulid(), 'store_id' => $storeId, 'name' => $name, 'mobile' => $mobile,
@@ -348,7 +352,7 @@ class DemoDataSeeder extends Seeder
         $pharmacist = User::where('username', 'pharmacist')->sole();
         $id = fn (string $name) => Product::where('store_id', $storeId)->where('name', $name)->value('id');
         $line = fn (string $name, int $qty, string $unit = 'pack') => ['product_id' => $id($name), 'qty' => $qty, 'unit' => $unit];
-        $rx = ['prescriber_name' => 'Dr. A. Deshmukh', 'prescriber_address' => 'Primary Health Centre, Wadgaon'];
+        $rx = ['prescriber_name' => 'Dr. A. Deshmukh', 'prescriber_address' => 'Primary Health Centre, '.config('shop.demo.village')];
 
         // [who bills, customer, lines, payments (method => rupees; the rest becomes udhar), patient for prescription bills]
         $bills = [

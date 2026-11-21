@@ -348,3 +348,38 @@ describe('expiry alerts', () => {
         expect(calls.some((c) => c.path.includes('status=expiring') && c.path.includes('days=60'))).toBe(true);
     });
 });
+
+describe('scan to add', () => {
+    it('fills the scanned barcode in, then opens the opening-stock dialog and returns to the sale', async () => {
+        const calls = mockServer({
+            ...base(['products.manage', 'stock.adjust', 'sales.create']),
+            'GET /products/similar': ok({ data: [] }),
+            'POST /products': () => ({ status: 201, body: detail({ id: 12, type: 'general', barcodes: [{ barcode: '8901234567890', unit: 'pack', is_internal: false }] }) }),
+            'GET /products/12': ok(detail({ id: 12, type: 'general', tracks_batch: false, tracks_expiry: false, batches: [], has_stock_history: false })),
+            'GET /products/12/movements': ok(paged([])),
+            'POST /products/12/opening-stock': () => ({ status: 201, body: {} }),
+            'GET /pos/search': ok({ data: [], matched_barcode: false, barcode_unit: 'pack' }),
+        });
+        const user = userEvent.setup();
+        renderApp('/products/new?barcode=8901234567890&then=sale');
+
+        expect(await screen.findByDisplayValue('8901234567890')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: /General|Kirana/ }));
+        await user.type(screen.getByLabelText('Name'), 'Parle-G 50g');
+        await user.type(screen.getByLabelText(/MRP/), '5');
+        await user.click(screen.getAllByRole('button', { name: 'Save' })[0]);
+
+        // Straight on to the opening stock of the new product…
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText(/Parle-G 50g|Crocin 500 Tablet/)).toBeInTheDocument();
+        await user.type(within(dialog).getByLabelText('Quantity'), '10');
+        await user.type(within(dialog).getByLabelText(/Purchase cost/), '4');
+        await user.click(within(dialog).getByRole('button', { name: 'Add stock' }));
+
+        // …and back to the sale screen.
+        expect(await screen.findByRole('searchbox')).toBeInTheDocument();
+        const post = calls.find((c) => c.method === 'POST' && c.path === '/products')!;
+        expect(post.body.barcodes).toEqual([{ barcode: '8901234567890', unit: 'pack' }]);
+        expect(calls.some((c) => c.method === 'POST' && c.path === '/products/12/opening-stock')).toBe(true);
+    });
+});

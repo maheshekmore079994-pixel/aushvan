@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, X } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ScanButton } from '@/components/CameraScanner';
 import { Alert, Button, Card, CheckField, SelectField, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
@@ -42,7 +42,7 @@ type Form = {
 
 const rupees = (paise: number) => (paise > 0 ? (paise / 100).toFixed(2) : '');
 
-function blankForm(options: CatalogOptions, type: ProductType): Form {
+function blankForm(options: CatalogOptions, type: ProductType, scannedBarcode: string | null = null): Form {
     const unitId = (code: string) => String(options.units.find((u) => u.code === code)?.id ?? '');
     const medical = type === 'medical';
 
@@ -58,7 +58,7 @@ function blankForm(options: CatalogOptions, type: ProductType): Form {
         mrp: '',
         selling_price: '',
         tax_rate_id: String(options.tax_rates.find((r) => r.rate_percent === '5.00')?.id ?? options.tax_rates[0]?.id ?? ''),
-        barcodes: [''],
+        barcodes: [scannedBarcode ?? ''],
         generate_barcode: false,
         generic_name: '',
         strength: '',
@@ -112,6 +112,7 @@ type Duplicate = { id: number; name: string; sku: string };
 export function ProductFormPage() {
     const { t } = useTranslation();
     const params = useParams();
+    const [search] = useSearchParams();
     const editingId = params.id ? Number(params.id) : 0;
     const options = useCatalogOptions();
     const existing = useProduct(editingId);
@@ -126,13 +127,14 @@ export function ProductFormPage() {
             key={editingId}
             options={options.data}
             product={editingId > 0 ? (existing.data ?? null) : null}
-            initial={editingId > 0 && existing.data ? fromProduct(existing.data) : blankForm(options.data, 'medical')}
+            initial={editingId > 0 && existing.data ? fromProduct(existing.data) : blankForm(options.data, 'medical', search.get('barcode'))}
         />
     );
 }
 
 function ProductForm({ options, product, initial }: { options: CatalogOptions; product: ProductDetail | null; initial: Form }) {
     const { t, i18n } = useTranslation();
+    const [search] = useSearchParams();
     const { can } = useSession();
     const navigate = useNavigate();
     const toast = useToast();
@@ -253,7 +255,9 @@ function ProductForm({ options, product, initial }: { options: CatalogOptions; p
             await queryClient.invalidateQueries({ queryKey: productKeys.all });
             await queryClient.invalidateQueries({ queryKey: productKeys.options });
             toast('success', t('common.saved'));
-            navigate(`/products/${saved.id}`);
+            // A product made from an unknown scan goes straight on to its opening stock, then back to the sale.
+            const then = search.get('then');
+            navigate(product ? `/products/${saved.id}` : `/products/${saved.id}?stock=1${then ? `&then=${encodeURIComponent(then)}` : ''}`);
         } catch (e) {
             if (e instanceof ApiError && e.code === 'possible_duplicate') {
                 setDuplicates((e.payload.duplicates ?? []) as Duplicate[]);

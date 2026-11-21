@@ -199,8 +199,17 @@ export function Badge({ tone = 'neutral', children }: { tone?: Tone; children: R
 }
 
 export function Alert({ tone = 'danger', children }: { tone?: 'danger' | 'warning' | 'success' | 'info'; children: ReactNode }) {
+    const ref = useRef<HTMLDivElement>(null);
+    // A refusal usually appears at the top of a form while the operator is at its bottom (on a phone, under the
+    // keyboard). Bring it on screen, or "nothing happened" is what they see.
+    useEffect(() => {
+        if (tone === 'danger') ref.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+        // Once, when it appears: parents mount an Alert per message, and re-rendering must not yank the page back.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
-        <div role="alert" className={clsx('rounded-lg px-4 py-3 font-medium', badgeTones[tone])}>
+        <div ref={ref} role="alert" className={clsx('rounded-lg px-4 py-3 font-medium', badgeTones[tone])}>
             {children}
         </div>
     );

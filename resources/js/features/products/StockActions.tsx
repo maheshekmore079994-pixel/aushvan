@@ -29,19 +29,21 @@ type AddStockProps = {
     product: ProductUnits & { tracks_batch: boolean; tracks_expiry: boolean; mrp_paise: number; selling_price_paise: number };
     open: boolean;
     onClose: () => void;
+    /** Called after stock was saved (not on cancel). */
+    onSaved?: () => void;
 };
 
 /** Stock already on the shelf, entered as a batch with its cost. */
-export function AddStockModal({ product, open, onClose }: AddStockProps) {
+export function AddStockModal({ product, open, onClose, onSaved }: AddStockProps) {
     const { t } = useTranslation();
     return (
         <Modal open={open} onClose={onClose} title={t('stock.add_title', { name: product.name })} closeLabel={t('common.close')}>
-            {open && <AddStockForm product={product} onDone={onClose} />}
+            {open && <AddStockForm product={product} onDone={onClose} onSaved={onSaved} />}
         </Modal>
     );
 }
 
-function AddStockForm({ product, onDone }: { product: AddStockProps['product']; onDone: () => void }) {
+function AddStockForm({ product, onDone, onSaved }: { product: AddStockProps['product']; onDone: () => void; onSaved?: () => void }) {
     const { t } = useTranslation();
     const toast = useToast();
     const queryClient = useQueryClient();
@@ -99,6 +101,7 @@ function AddStockForm({ product, onDone }: { product: AddStockProps['product']; 
             await queryClient.invalidateQueries({ queryKey: productKeys.all });
             toast('success', t('stock.added'));
             onDone();
+            onSaved?.();
         } catch (e) {
             setError(e);
         } finally {

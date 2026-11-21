@@ -366,7 +366,8 @@
         "duplicate_found": "A product with this name already exists:",
         "save_anyway": "It is a different product — save anyway",
         "similar": "Similar products:",
-        "locked_help": "Type and units cannot be changed because stock has been entered."
+        "locked_help": "Type and units cannot be changed because stock has been entered.",
+        "add_with_barcode": "Add a product with this barcode"
     },
     "stock": {
         "status": {
@@ -514,7 +515,8 @@
         "change": "Give back {{amount}}",
         "complete": "Complete sale",
         "saved_earlier": "This bill was already saved earlier as {{number}} — before your last changes. Check it, and bill anything added later separately.",
-        "pay_short": "Pay"
+        "pay_short": "Pay",
+        "add_with_barcode": "Add product with this barcode"
     },
     "customers": {
         "choose": "Choose customer",

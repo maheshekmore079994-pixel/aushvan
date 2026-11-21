@@ -1,7 +1,7 @@
 import { ArrowLeft, Pencil, Plus, ScanBarcode } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Alert, Badge, Button, Card, Spinner } from '@/components/ui';
 import { useSession } from '@/features/auth/session';
 import { formatMoney } from '@/lib/money';
@@ -26,9 +26,19 @@ export function ProductDetailPage() {
     const navigate = useNavigate();
     const unit = useUnitLabel();
     const id = Number(useParams().id);
+    const [search, setSearch] = useSearchParams();
     const product = useProduct(id);
     const movements = useMovements(id);
-    const [adding, setAdding] = useState(false);
+    // ?stock=1 (from "add product with this barcode") opens the opening-stock dialog for someone allowed to add stock.
+    const [adding, setAdding] = useState(search.get('stock') === '1' && can('stock.adjust'));
+    const closeAdding = () => {
+        setAdding(false);
+        if (search.get('stock')) setSearch({}, { replace: true });
+    };
+    // Back to the sale only when stock was really saved; cancelling stays here, where stock can still be added.
+    const afterStock = () => {
+        if (search.get('then') === 'sale') navigate('/sale');
+    };
     const [adjusting, setAdjusting] = useState<Batch | null>(null);
 
     if (product.isError) return <Alert>{t('products.not_found')}</Alert>;
@@ -181,7 +191,7 @@ export function ProductDetailPage() {
                 )}
             </Card>
 
-            <AddStockModal product={p} open={adding} onClose={() => setAdding(false)} />
+            <AddStockModal product={p} open={adding} onClose={closeAdding} onSaved={afterStock} />
             <AdjustStockModal product={p} batch={adjusting} onClose={() => setAdjusting(null)} />
         </div>
     );

@@ -5,7 +5,7 @@ import { canScanWithCamera, cleanCode, liveCameraAvailable, loadBarcodeReader, r
 import { Alert, Button, Modal } from './ui';
 
 /** What the screen did with a code. Shown inside the scanner, which then stays open for the next pack. */
-export type ScanResult = { ok: boolean; text: string };
+export type ScanResult = { ok: boolean; text: string; action?: { label: string; run: () => void } };
 
 /**
  * Return a result to keep scanning; return nothing when one code is all that was wanted.
@@ -240,6 +240,11 @@ function ScannerBody({ onCode, onClose, onRetry }: { onCode: OnCode; onClose: ()
             >
                 {checking ? t('scan.checking') : result?.text}
             </p>
+            {!checking && result?.action && (
+                <Button variant="secondary" onClick={result.action.run} className="self-center">
+                    {result.action.label}
+                </Button>
+            )}
 
             {/* With no camera at all the picture is chosen from the phone's files; otherwise the camera app opens. */}
             <input ref={file} type="file" accept="image/*" capture={problem === 'no_camera' ? undefined : 'environment'} className="hidden" onChange={(event) => void onPhoto(event.target.files?.[0])} />

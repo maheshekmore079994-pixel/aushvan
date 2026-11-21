@@ -107,6 +107,11 @@ export function ProductsPage({ type, title }: { type?: ProductType; title: strin
                             {t('products.add')}
                         </Button>
                     )}
+                    {canAdd && /^\d{6,}$/.test(debouncedSearch) && (
+                        <Button className="mt-4" variant="success" onClick={() => navigate(`/products/new?barcode=${encodeURIComponent(debouncedSearch)}`)}>
+                            {t('products.add_with_barcode')}
+                        </Button>
+                    )}
                 </Card>
             )}
 
