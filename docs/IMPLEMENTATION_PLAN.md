@@ -18,9 +18,13 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
 - **Demo shop:** `php artisan migrate:fresh` then `php artisan db:seed --class=DemoDataSeeder`. Logins
   `owner`, `pharmacist`, `manager`, `cashier`, password `demo-pass-123`; pharmacist PIN `1234`. 80 products
   with stock, 6 customers, 62 bills over 14 days (10 today: cash, UPI, card, split, udhar, prescription).
-- **Next task:** Phase 4 — suppliers and purchase entry (with MR/supplier contacts, D-054), then purchase returns.
-  After that: day closing, expenses and backup (Phase 7/8) so the shop can run a pilot. Hold/resume and discount
-  controls stay queued.
+- **Next task (order changed by the owner, D-055):** finish the Windows desktop build — owner test of the zip on a
+  clean PC, Inno installer, backup to USB (Phase 8 item brought forward), slimmer package — then the mobile app
+  wrapper once hosting exists. After that Phase 4 (suppliers and purchases, with MR contacts) and day closing,
+  both required before a shop runs on AUSHVAN daily.
+- **2026-11-22:** scan-to-add products (D-056), phone fixes (request keys on plain http, visible errors), demo
+  shop configurable (`DEMO_*` in .env; currently Jay Mahakali Medical and General Stores, Khadavli), first
+  Windows package built and proven (KNOWN_ISSUES D1–D6).
 - **MySQL:** the suite now runs on the MariaDB found on this machine (WAMP, port 3307); see KNOWN_ISSUES P1.
 - **Blocked on:** nothing. Awaiting the AUSHVAN logo file and the answers to Q2, Q3, Q5.
 
@@ -199,6 +203,10 @@ Exit: a user can set up the shop, log in, switch language, manage users; tests g
 - [ ] Installation and deployment documentation; pilot in the shop
 
 ## Phase 9 — Windows and offline
+
+- [x] Package script `build/windows/make-desktop.ps1`: trimmed PHP runtime + production app + launcher → folder, zip, or Inno installer (D-057)
+- [x] Launcher `AUSHVAN.exe`: first-run key and migrations, data in %LOCALAPPDATA%\AUSHVAN\data, server on 127.0.0.1, app window, tray, log, PHP dies with the launcher
+- [ ] Owner runs the zip on a clean Windows PC (D1); Inno installer (D2); backup to USB (D3); package size (D5)
 
 - [ ] Proof of concept: NativePHP vs local-server install on the target PC; measure and decide
 - [ ] SQLite production configuration; local backup to USB + off-site upload

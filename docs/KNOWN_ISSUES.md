@@ -147,6 +147,19 @@ Updated 2026-11-11 (Phases 1–2, the core of Phase 3, and the owner-requested r
 | F4 | On the Roles screen, switching role discards unsaved ticks without asking. | Lost edits. | Ask before switching. |
 | F5 | Saving a medicine rewrites its composition text from the generic name and strength. | A hand-edited composition would be replaced. | Review with the "same composition" feature. |
 
+## Phone access and the desktop build (2026-11-22)
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| M1 | On a plain-http address (a phone opening the shop PC as http://192.168.x.x) browsers hide the "secure context" APIs: `crypto.randomUUID` (fixed — request keys now use `getRandomValues`), the live camera (photo mode is used), clipboard. Any new code must avoid secure-only APIs or test on such an address. | Was the cause of "product add did not work" on the owner's phone. | The browser tester now runs against http://192.168.0.108:8000. |
+| M2 | The phone must be on the same Wi-Fi as the PC and the PC's firewall must allow port 8000 (rule in HOW_TO_RUN). The address changes when the router hands out a new one; `.env` `SANCTUM_STATEFUL_DOMAINS` must list it. | Login refused from the phone after an address change. | Hosting (https) removes all of this. |
+| D1 | The Windows launcher was proven only from the developer tool, which suspends windowed programs it starts: it worked after the process was resumed by hand (database made, server up, app window opened). It has not been started by a double-click on a clean Windows PC yet. | The .exe may behave differently on a shop PC (SmartScreen warning for an unsigned program is expected). | Owner: run `build\windows\out\AUSHVAN-0.9.0-windows.zip` → `AUSHVAN.exe` on another PC and report. |
+| D2 | Inno Setup could not be installed from the developer tool (download refused), so there is a zip, not a Setup.exe. | Install = unzip and run; no Start-menu entry or uninstaller. | Install Inno Setup 6 once (`winget install JRSoftware.InnoSetup`) and re-run `make-desktop.ps1`; the script then builds the installer. |
+| D3 | The desktop build has no backup yet: the shop's data is one SQLite file in `%LOCALAPPDATA%\AUSHVAN\data`. Updates and reinstalls keep it. | A disk failure loses everything. | Phase 8 backup (copy to a USB / second folder, verified) before any shop runs on it. |
+| D4 | The desktop build serves only the PC itself (127.0.0.1). Phones on the shop Wi-Fi cannot open it. | Phone billing needs the server shape (`php artisan serve --host=0.0.0.0`) or hosting. | Option to bind to the LAN in the launcher, with the firewall rule, if wanted. |
+| D5 | The package is about 200 MB (PHP runtime 30 MB, vendor 150 MB with mPDF fonts). | Slow to copy on a USB stick. | Strip unused mPDF fonts and vendor test folders. |
+| D6 | The packaged application has no code signing certificate. | Windows SmartScreen shows "unknown publisher" the first time. | Accept for the pilot; a certificate later (see OFFLINE_WINDOWS_STRATEGY). |
+
 ## Returns and cancellation (2026-11-19)
 
 | # | Issue | Impact | Action |

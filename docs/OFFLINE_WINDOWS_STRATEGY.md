@@ -140,7 +140,7 @@ to be confirmed by the owner):
 | Target | How | When |
 |---|---|---|
 | Phone / tablet, now | The same web application: responsive screens, bottom bar, installable from the browser ("Add to Home screen") through the web app manifest. Needs a connection to the server. | Built 2026-11-11 |
-| Windows desktop | Shape B or C of this document (local server install or NativePHP), decided by the Phase 9 proof of concept. Works without internet; data in SQLite on the shop PC. | Phase 9 |
+| Windows desktop | Shape B: `build/windows/make-desktop.ps1` packages a trimmed PHP, the application and the `AUSHVAN.exe` launcher (D-057). First package built 2026-11-22; owner test on a clean PC pending (KNOWN_ISSUES D1–D6). Works without internet; data in SQLite under %LOCALAPPDATA%\AUSHVAN. | Phase 9, started |
 | Mobile app in the Play Store | A thin wrapper (Trusted Web Activity or Capacitor) around the same hosted application. Camera scanning is already part of the web screens (D-050), so the wrapper gets it without extra work. Only useful once a hosted server exists for the phone to reach. | After the pilot |
 | Owner's phone with a local-only shop PC | Needs either the shop PC reachable on the shop Wi-Fi, or sync to a hosted copy (the two-way sync deferred beyond version 1). | Decide with Q1 |
 

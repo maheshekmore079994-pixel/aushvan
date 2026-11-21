@@ -49,6 +49,7 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 | C1 | Product types medical and general with shared fields: name, local name, SKU (auto), category/subcategory, brand, manufacturer, HSN, tax rate, units, MRP, selling price, default discount, minimum stock, supplier, rack, image, active flag | MVP |
 | C2 | Short add form with "More details"; save-and-add-stock shortcut | MVP |
 | C3 | Barcode optional; multiple barcodes per product, each tied to a pack unit; duplicates blocked | MVP |
+| C3a | Scan to add: an unknown barcode on the sale screen or the product list offers to add the product with that barcode, then its opening stock, then back to the sale (D-056) | Built 2026-11-22 |
 | C4 | Generate internal barcode; print barcode labels (A4 label sheet and thermal label size) | V1 |
 | C5 | Duplicate detection on create and import (barcode, name + pack + brand, similar name) | MVP |
 | C6 | Price history and stock history per product | MVP |

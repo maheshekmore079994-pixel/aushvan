@@ -115,7 +115,28 @@ Sign in as **owner** unless said otherwise.
 8. **Roles and Users** — show that a cashier cannot cancel a bill or see cost prices; change a permission.
 9. On a **phone** (same Wi-Fi, section 1): open the sale screen, scan a pack with the camera.
 
-## 7. What NOT to promise in a demo
+## 7. A pack that is not in the system yet (scan to add)
+
+Scan or type the barcode on the sale screen. If no product has it, a yellow bar says so with **Add product with
+this barcode** (owner and manager). The product form opens with the barcode filled in: choose Medicine or General
+item, type the name and MRP, Save. The "Add stock" box opens at once — quantity and purchase cost (medicines also
+batch and expiry) — and you are back on the sale screen, where the same scan now adds the item. Expect about
+20 seconds per new pack. The same button appears on the Products screen when a barcode search finds nothing.
+
+## 8. Windows desktop package
+
+```powershell
+powershell -ExecutionPolicy Bypass -File build\windows\make-desktop.ps1 -Version 0.9.0
+```
+
+makes `build\windows\dist\AUSHVAN\` and `build\windows\out\AUSHVAN-0.9.0-windows.zip` (about 200 MB; with
+Inno Setup installed it makes `AUSHVAN-Setup-0.9.0.exe` instead). On the shop PC: unzip, run `AUSHVAN.exe`.
+The first start takes about a minute (it creates the database), then the app opens in a window; the small
+AUSHVAN window stays in the tray and "Stop and close" stops it. Data: `%LOCALAPPDATA%\AUSHVAN\data\aushvan.sqlite`;
+log: `%LOCALAPPDATA%\AUSHVAN\launcher.log`. The first visit shows the shop setup screen (no demo data).
+Windows shows an "unknown publisher" warning for the unsigned program — "More info → Run anyway".
+
+## 9. What NOT to promise in a demo
 
 Purchases/supplier entry, expenses, day closing, backup, the Windows installer and the mobile app are **not
 built yet**. The software has not run on a real printer or on a real phone with real packs. GST reports are

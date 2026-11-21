@@ -145,6 +145,7 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - `resources/js/` — `app.tsx` (routes), `features/<module>/`, `components/ui.tsx`, `lib/` (api, money, i18n, screen), `locales/{en,mr,hi}.json`.
 - `resources/js/components/Mascot.tsx` — Sathi, the mascot (moods: hello, happy, empty, sad). `Spinner` in `ui.tsx` draws skeletons (`shape`), `EmptyState` shows the mascot. Motion classes live in `app.css`.
 - `resources/js/components/CameraScanner.tsx` (`ScanButton`, `CameraScanner`) and `lib/barcodeReader.ts` — camera barcode reading. Put `ScanButton` beside a box a scanner would type into; return a `ScanResult` from `onCode` to keep scanning, nothing to close after one code.
+- `build/windows/` — Windows desktop package: `make-desktop.ps1` (assembles PHP + app + launcher, zip or Inno installer), `launcher/Launcher.cs` (compile with the C# compiler in `C:\Windows\Microsoft.NET\Framework64\v4.0.30319`), `aushvan.iss`.
 - `resources/js/features/dashboard/charts.tsx` — the only charts; follow the chart rules in `UI_UX_GUIDELINES.md`.
 - `resources/css/app.css` — colour tokens. Use token classes (`bg-primary`, `text-ink-soft`, `border-line`), never raw Tailwind colours such as `bg-blue-600` or `slate-*`.
 - Sidebar entries live in `resources/js/layout/AppLayout.tsx`; add an entry only when its screen works.
@@ -168,6 +169,8 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - Unit words: `unit(code, count)` gives "strip" for 1 and "strips" otherwise; use `unit(code, 1)` after "per" or "/".
 - A fixed bar that exists only on small screens is rendered through `useIsNarrow(1023)`, not hidden with CSS, so tests and screen readers do not meet the same button twice.
 - Run the backend suite on MariaDB too (`DB_CONNECTION=mysql DB_PORT=3307 DB_DATABASE=rmgsms_test DB_USERNAME=root php artisan test`; WAMP's server on this PC). Its default engine is MyISAM — the connection forces InnoDB. MySQL does not reset ids between tests, and returns unordered rows in another order than SQLite: never assert on ids or on unsorted lists.
+- Phones open the shop PC over plain http, which has no "secure context" APIs: never use `crypto.randomUUID`, `navigator.clipboard` or the live camera without a fallback; test on http://192.168.0.108:8000, not only localhost.
+- Windowed programs started from the developer tool (the Windows launcher) are suspended by the tool's sandbox: resume them with `NtResumeProcess` to test, or have the owner double-click them. Never commit `build/windows/dist`, `stage` or `out`.
 - Anything that adds to the bill from a stream of events (camera frames) needs a per-code memory, two readings running, and a "still open" check after every await; one remembered "last code" let two barcodes in view add the same item repeatedly.
 - Query-string numbers arrive as strings: cast them before date or arithmetic use (a crash found by testing with demo data).
 - Create and change files with the editor tools, not shell heredocs or inline scripts (quotes broke several), and never pipe long JSON through `cut`; use `head -c`.
