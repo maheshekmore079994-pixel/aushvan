@@ -1,0 +1,321 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource/noto-sans-devanagari/400.css';
+@import '@fontsource/noto-sans-devanagari/500.css';
+@import '@fontsource/noto-sans-devanagari/600.css';
+@import '@fontsource/noto-sans-devanagari/700.css';
+@import 'tailwindcss';
+
+@source '../views';
+
+/*
+ * Design tokens — see docs/UI_UX_GUIDELINES.md.
+ * One calm brand colour (indigo) for actions; green, amber and red are kept for meaning
+ * (money in / needs attention / stop), and are slightly muted so a screen full of them stays readable.
+ * Teal marks medicines and violet marks general goods everywhere, including charts.
+ */
+@theme {
+    --font-sans: 'Inter Variable', 'Noto Sans Devanagari', ui-sans-serif, system-ui, sans-serif;
+
+    --color-primary: #4353e0;
+    --color-primary-dark: #3340b8;
+    --color-primary-soft: #eceefd;
+    --color-success: #12946a;
+    --color-success-dark: #0c7352;
+    --color-success-soft: #e2f5ed;
+    --color-warning: #a85f08;
+    --color-warning-soft: #fdf1dc;
+    --color-danger: #cf3f4a;
+    --color-danger-dark: #a82d37;
+    --color-danger-soft: #fdeaeb;
+    --color-medical: #0b7d74;
+    --color-medical-soft: #dff4f1;
+    --color-general: #6247d6;
+    --color-general-soft: #eeeafc;
+    --color-surface: #f6f7f9;
+    --color-ink: #1b2236;
+    --color-ink-soft: #5a6478;
+    --color-line: #e5e7ec;
+    --color-rail: #171c33;
+    --color-rail-soft: #232a49;
+    --color-side: #fbfbfc;
+
+    /* Chart marks (validated for colour-blind separation; text never uses these). */
+    --color-chart-1: #2a78d6;
+    --color-chart-2: #eb6834;
+    --color-chart-3: #1baf7a;
+    --color-chart-4: #eda100;
+    --color-chart-medical: #0d9e94;
+    --color-chart-general: #7a5af5;
+
+    --shadow-card: 0 1px 2px rgb(27 34 54 / 0.05);
+    --shadow-pop: 0 12px 32px rgb(27 34 54 / 0.18);
+}
+
+/*
+ * Compact density: every size in the app is in rem, so the root size is the one dial.
+ * 14px on a PC gives 38px controls and 14px text (the density of current business software);
+ * phones and tablets get 15px so fingers still hit the targets.
+ */
+html {
+    font-size: 15px;
+}
+
+@media (min-width: 1024px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+body {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    letter-spacing: -0.006em;
+}
+
+/* One visible focus style for keyboard users everywhere. */
+:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+    outline-offset: 2px;
+}
+
+/* Every data table gets the same quiet header and row rhythm without repeating classes. */
+table thead {
+    background: #f7f8fb;
+}
+
+table thead th {
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+table tbody tr {
+    transition: background-color 120ms;
+}
+
+table tbody tr:hover {
+    background: #fafbfe;
+}
+
+.receipt table thead,
+.receipt table tbody tr:hover {
+    background: transparent;
+}
+
+.receipt table thead th {
+    font-size: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* Room for the bottom bar on phones, including the iPhone home indicator. */
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* Printing: only the page content is printed (bill, statement, report, labels), on white. */
+@media print {
+    @page {
+        margin: 5mm;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    /* Narrow enough for an 80 mm receipt roll; centred on A4. */
+    .receipt {
+        width: 72mm;
+        margin: 0 auto;
+        font-size: 11px;
+        color: #000;
+    }
+
+    .label-sheet {
+        gap: 0 !important;
+    }
+
+    .label-sheet > div {
+        break-inside: avoid;
+        border-color: transparent !important;
+    }
+}
+
+dialog::backdrop {
+    background: rgb(23 28 51 / 0.55);
+    backdrop-filter: blur(2px);
+}
+
+/* ---- Motion -------------------------------------------------------------------------------
+ * Short and purposeful: things arrive (rise), open (pop), fill (grow) and wait (shimmer).
+ * Nothing loops except the loader and the mascot, and everything stops under "reduce motion".
+ */
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+@keyframes pop {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.97);
+    }
+}
+
+@keyframes grow-y {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+@keyframes grow-x {
+    from {
+        transform: scaleX(0);
+    }
+}
+
+@keyframes shimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(16px);
+    }
+}
+
+.animate-rise {
+    animation: rise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.animate-pop {
+    animation: pop 160ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    transform-origin: top;
+}
+
+.animate-slide-in {
+    animation: slide-in 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Children arrive one after another: dashboard tiles, report cards. */
+.stagger > * {
+    animation: rise 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
+
+.grow-y {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: grow-y 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.grow-x {
+    transform-origin: left;
+    animation: grow-x 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+dialog[open] {
+    animation: pop 180ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Skeleton: a soft grey block with light passing over it, shaped like what is about to appear. */
+.skeleton {
+    display: block;
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg, #eceef2 25%, #f6f7f9 37%, #eceef2 63%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+}
+
+/* ---- Mascot ------------------------------------------------------------------------------ */
+@keyframes mascot-bob {
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes mascot-wave {
+    0%, 60%, 100% {
+        transform: rotate(0deg);
+    }
+    15%, 45% {
+        transform: rotate(14deg);
+    }
+    30% {
+        transform: rotate(-8deg);
+    }
+}
+
+@keyframes mascot-blink {
+    0%, 92%, 100% {
+        transform: scaleY(1);
+    }
+    96% {
+        transform: scaleY(0.1);
+    }
+}
+
+@keyframes mascot-twinkle {
+    50% {
+        opacity: 0.25;
+        transform: scale(0.85);
+    }
+}
+
+.mascot-live .mascot-body {
+    animation: mascot-bob 3.2s ease-in-out infinite;
+}
+
+.mascot-live .mascot-wave {
+    transform-box: view-box;
+    transform-origin: 88px 86px;
+    animation: mascot-wave 2.6s ease-in-out infinite;
+}
+
+.mascot-live .mascot-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mascot-blink 4.5s ease-in-out infinite;
+}
+
+.mascot-live .mascot-sparkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mascot-twinkle 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton,
+    .mascot-live * {
+        animation: none !important;
+    }
+}
+
+@media print {
+    .mascot {
+        display: none;
+    }
+}

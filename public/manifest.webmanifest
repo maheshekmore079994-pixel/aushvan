@@ -1,0 +1,18 @@
+{
+    "name": "AUSHVAN — Medical & General Store Management",
+    "short_name": "AUSHVAN",
+    "description": "AUSHVAN — Medical & General Store Management Software by TriMora Technologies. Every Store. Better Managed.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#f4f5f9",
+    "theme_color": "#171c33",
+    "icons": [
+        { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ],
+    "shortcuts": [
+        { "name": "New Sale", "url": "/sale" },
+        { "name": "Udhar", "url": "/udhar" },
+        { "name": "Products", "url": "/products" }
+    ]
+}
