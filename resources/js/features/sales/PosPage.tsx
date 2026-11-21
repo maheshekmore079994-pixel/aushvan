@@ -33,7 +33,10 @@ export function QtyBox({ value, onChange, label, className, max = 100000 }: { va
                 const digits = event.target.value.replace(/\D/g, '').slice(0, 7);
                 setText(digits);
                 const qty = Number(digits);
-                if (digits !== '' && qty >= 1) onChange(Math.min(qty, max));
+                if (digits !== '' && qty >= 1) {
+                    onChange(Math.min(qty, max));
+                    if (qty > max) setText(String(max)); // the box never shows more than can be taken
+                }
             }}
             onBlur={() => setText(null)}
             onFocus={(event) => event.target.select()}

@@ -150,7 +150,8 @@ Exit: a user can set up the shop, log in, switch language, manage users; tests g
       real phone (KNOWN_ISSUES C1–C7). Reviewed: 12 findings, 11 fixed (tests for the money ones: double adding with
       two barcodes in view, late add after closing, single-frame misreads, over-stock, button on a PC without a
       camera; the sound, lost-camera, retry and focus fixes have no automated test), 1 listed as C6
-- [x] Tests: 230 backend (SQLite and MariaDB) including 30 + 25 robustness tests from the tester and 9 review-fix tests; 68 frontend
+- [x] Tests: 230 backend (SQLite and MariaDB) including 30 + 25 robustness tests from the tester and 9 review-fix tests; 71 frontend
+- [x] Browser test of 2026-11-22 on the phone address (every screen, cashier and owner, English and Marathi, 15 findings): 9 fixed, the rest are T1–T5 in KNOWN_ISSUES
 - [x] Returns review and test round (2026-11-19): reviewer found 7 (duplicate line doubled the refund — high; per-note round-off; lock order; soft-deleted customer; 3 low), tester found 1 (ledger silently skipped a deleted customer), screen reviewer found 8 (a stale "to give back" figure could be confirmed for a moment; expired general goods defaulted to the shelf; duplicate labels for two lines of one product; 5 low) — all fixed, the money ones with tests; the rest are X1–X10 in KNOWN_ISSUES
 - [ ] Product photos (upload, thumbnails on lists and quick items)
 - [ ] Batch-wise barcodes and labels with batch / expiry printed

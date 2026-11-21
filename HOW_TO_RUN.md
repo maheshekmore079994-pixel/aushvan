@@ -99,7 +99,7 @@ Sign in as **owner** unless said otherwise.
 
 1. **Dashboard** — today's sales, udhar to collect, low stock and expiry alerts, charts. Switch the language
    (account menu, top right) to Marathi and back.
-2. **New Sale** (Ctrl+K or the green button) — type `cro` → Crocin; press Enter twice (quantity goes to 2);
+2. **New Sale** (Ctrl+K or the green button) — type `cro` → Crocin; press Enter (one strip), then the + button or type `cro` + Enter again (two);
    scan a barcode with the phone camera if a phone is handy (camera button in the search box); add loose
    tablets (unit drop-down); choose customer *Ramesh Patil* (F4); **Pay** (F9): cash with change, or part UPI
    part udhar. The bill opens — **Print**.

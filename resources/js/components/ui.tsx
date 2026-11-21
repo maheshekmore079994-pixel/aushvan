@@ -203,7 +203,7 @@ export function Alert({ tone = 'danger', children }: { tone?: 'danger' | 'warnin
     // A refusal usually appears at the top of a form while the operator is at its bottom (on a phone, under the
     // keyboard). Bring it on screen, or "nothing happened" is what they see.
     useEffect(() => {
-        if (tone === 'danger') ref.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+        if (tone === 'danger') ref.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
         // Once, when it appears: parents mount an Alert per message, and re-rendering must not yank the page back.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

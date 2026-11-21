@@ -83,7 +83,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('can:'.Permission::REPORTS_VIEW)->group(function () {
             Route::get('reports', [ReportController::class, 'index']);
             Route::get('reports/{report}', [ReportController::class, 'show']);
-            Route::get('reports/{report}/export', [ReportController::class, 'export'])->middleware('throttle:20,1');
+            Route::get('reports/{report}/export', [ReportController::class, 'export'])->middleware('throttle:60,1');
         });
 
         // Roles: owner only, checked in the controller.

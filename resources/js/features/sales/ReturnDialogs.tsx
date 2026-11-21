@@ -149,6 +149,7 @@ function ReturnForm({ bill, onClose }: { bill: Bill; onClose: () => void }) {
                                     <span className="block font-semibold">{item.product_name}</span>
                                     <span className="block text-sm text-ink-soft">
                                         {item.qty} {unit(item.unit_code, item.qty)} · {formatMoney(item.line_total_paise)}
+                                        {item.batch_no && ` · ${t('stock.batch_no')} ${item.batch_no}`}
                                         {item.returned_qty > 0 && ` · ${t('returns.already_returned', { qty: `${item.returned_qty} ${unit(item.unit_code, item.returned_qty)}` })}`}
                                     </span>
                                 </span>

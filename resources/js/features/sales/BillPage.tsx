@@ -163,11 +163,11 @@ function Receipt({ bill }: { bill: Bill }) {
                                     </span>
                                 )}
                             </td>
-                            <td className="whitespace-nowrap py-1 text-right">
-                                {item.qty} {unit(item.unit_code)}
+                            <td className="whitespace-nowrap py-1 pl-2 text-right">
+                                {item.qty} {unit(item.unit_code, item.qty)}
                             </td>
-                            <td className="whitespace-nowrap py-1 text-right">{formatMoney(Math.round((item.pack_price_paise * item.unit_factor) / item.pack_factor), false)}</td>
-                            <td className="whitespace-nowrap py-1 text-right">{formatMoney(item.gross_paise, false)}</td>
+                            <td className="whitespace-nowrap py-1 pl-2 text-right">{formatMoney(Math.round((item.pack_price_paise * item.unit_factor) / item.pack_factor), false)}</td>
+                            <td className="whitespace-nowrap py-1 pl-2 text-right">{formatMoney(item.gross_paise, false)}</td>
                         </tr>
                     ))}
                 </tbody>

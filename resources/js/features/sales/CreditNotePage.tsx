@@ -70,10 +70,10 @@ export function CreditNotePage() {
                                         {[item.batch_no && `${t('stock.batch_no')} ${item.batch_no}`, t(`returns.bucket_${item.bucket}`)].filter(Boolean).join(' · ')}
                                     </span>
                                 </td>
-                                <td className="whitespace-nowrap py-1 text-right">
+                                <td className="whitespace-nowrap py-1 pl-2 text-right">
                                     {item.qty} {unit(item.unit_code, item.qty)}
                                 </td>
-                                <td className="whitespace-nowrap py-1 text-right">{formatMoney(item.line_total_paise, false)}</td>
+                                <td className="whitespace-nowrap py-1 pl-2 text-right">{formatMoney(item.line_total_paise, false)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -99,7 +99,7 @@ export function CreditNotePage() {
                     </p>
                 </div>
                 <footer className="mt-3 border-t border-dashed border-line pt-2 text-center text-xs">
-                    <p>{t('bill.billed_by', { name: n.by })}</p>
+                    <p>{t('returns.made_by', { name: n.by })}</p>
                 </footer>
             </article>
         </div>

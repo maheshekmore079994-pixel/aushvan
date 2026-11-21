@@ -121,7 +121,7 @@ class ReviewFixesTest extends TestCase
         $before = Sale::count();
 
         for ($i = 0; $i < CompleteSale::PIN_ATTEMPTS; $i++) {
-            $attempt('000'.$i)->assertStatus(409)->assertJsonPath('code', 'pharmacist_required');
+            $attempt('000'.$i)->assertStatus(409)->assertJsonPath('code', 'pin_wrong')->assertJsonPath('tries_left', 4 - $i);
         }
         // Even the right PIN is refused while locked.
         $attempt('1234')->assertStatus(409)->assertJsonPath('code', 'pin_locked');

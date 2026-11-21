@@ -273,7 +273,8 @@
         "has_returns": "Goods were already returned against this bill, so it cannot be cancelled.",
         "expired_cannot_restock": "This batch has expired and cannot go back on sale. Choose \"Not for sale\".",
         "restock_needs_permission": "Only a pharmacist may put returned medicine back on sale. Choose \"Not for sale\", or ask the pharmacist.",
-        "refund_method_required": "Say how the money is given back."
+        "refund_method_required": "Say how the money is given back.",
+        "pin_wrong": "The PIN is wrong. Try again."
     },
     "products": {
         "type": {
@@ -858,6 +859,7 @@
         "refund_mode_question": "How is the money given back?",
         "reason_label": "Reason",
         "balance_now": "Udhar balance now",
-        "refunded_by": "Paid back by {{method}}"
+        "refunded_by": "Paid back by {{method}}",
+        "made_by": "Entered by {{name}}"
     }
 }

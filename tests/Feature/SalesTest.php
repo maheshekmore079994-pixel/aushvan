@@ -359,7 +359,7 @@ class SalesTest extends TestCase
         $this->getJson('/api/v1/pos/pharmacists')->assertJsonPath('data.0.id', $pharmacist->id)->assertJsonMissingPath('data.0.pin');
 
         $this->sell($line, $this->cash(3000) + $rx + ['pharmacist' => ['user_id' => $pharmacist->id, 'pin' => '0000']])
-            ->assertStatus(409)->assertJsonPath('code', 'pharmacist_required');
+            ->assertStatus(409)->assertJsonPath('code', 'pin_wrong')->assertJsonPath('tries_left', 4);
         $this->assertSame(0, Sale::count());
 
         // The cashier bills; the pharmacist approves with their PIN.

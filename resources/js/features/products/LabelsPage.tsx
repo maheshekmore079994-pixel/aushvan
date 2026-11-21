@@ -119,7 +119,7 @@ export function LabelsPage() {
                 </Button>
             </PageHeader>
 
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,26rem)_1fr] print:block">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] print:block">
                 <div className="flex flex-col gap-4 print:hidden">
                     <Card>
                         <div className="relative">
@@ -227,7 +227,7 @@ export function LabelsPage() {
                             </EmptyState>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto rounded-xl border border-line/70 bg-white p-4 shadow-card print:overflow-visible print:rounded-none print:border-0 print:p-0 print:shadow-none">
+                        <div className="max-w-full overflow-x-auto rounded-xl border border-line/70 bg-white p-4 shadow-card print:overflow-visible print:rounded-none print:border-0 print:p-0 print:shadow-none">
                             <div
                                 className="label-sheet grid justify-start gap-1"
                                 style={{ gridTemplateColumns: `repeat(${size.columns}, ${size.width}mm)` }}

@@ -147,6 +147,23 @@ Updated 2026-11-11 (Phases 1–2, the core of Phase 3, and the owner-requested r
 | F4 | On the Roles screen, switching role discards unsaved ticks without asking. | Lost edits. | Ask before switching. |
 | F5 | Saving a medicine rewrites its composition text from the generic name and strength. | A hand-edited composition would be replaced. | Review with the "same composition" feature. |
 
+## Browser test of 2026-11-22 (phone and laptop, Wi-Fi address) — left open on purpose
+
+Fixed from this round: debug mode was on for the demo server; the Barcode Labels page grew to twice the phone width
+once a product was chosen; a refusal inside a scrolled dialog (past expiry month) hid under the dialog header; a wrong
+pharmacist PIN said "a pharmacist must approve" instead of "wrong PIN" (now `pin_wrong` with tries left); bill quantity
+and rate ran together and read "1 strips"; the return dialog hid the batch when one product appeared twice and showed a
+typed quantity above the maximum; the credit note said "Billed by"; report exports throttled at 20 a minute (now 60);
+the demo script's "Enter twice" step.
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| T1 | Phone tables still scroll sideways with their buttons off-screen: product batches (Adjust), Expiry Alerts (Set aside / Write off), Users (Edit), Sales History columns, customer statement, every report. Nothing is unreachable, but nothing hints at it. (Same as U1.) | Operators on a phone may not find Adjust / Set aside. | Card layouts for these lists; a "swipe for more" shadow meanwhile. |
+| T2 | English on Marathi screens: bill footer text (a shop setting), "TAX INVOICE" document title, drug-schedule and tax-rate names in selects, stock-history notes, rack codes. | Mixed-language bill and product form. | Local names for schedules and tax rates (data), a Marathi bill title (confirm the legal wording with the CA). |
+| T3 | Some phone controls are under the 38 px rule: header buttons 34 px, drawer rows 34 px, filter chips 30 px, labels count box 23 px tall. | Harder to tap. | Raise them in the next UI pass. |
+| T4 | `<html lang>` returns to "en" after a reload while the screens stay in Marathi. | Screen readers and font choice only. | Set it from the saved language at start-up. |
+| T5 | The sales-history date box follows the browser locale (mm/dd/yyyy on an English-US browser). (Same as U3.) | Cosmetic on Indian phones (dd/mm). | — |
+
 ## Phone access and the desktop build (2026-11-22)
 
 | # | Issue | Impact | Action |

@@ -231,8 +231,10 @@ final class CompleteSale
         }
 
         if ($pharmacist === null || $pharmacist->pin === null || $pin === '' || ! Hash::check($pin, $pharmacist->pin)) {
-            if ($pharmacist !== null && $pin !== '') {
+            if ($pharmacist !== null && $pharmacist->pin !== null && $pin !== '') {
                 $this->wrongPinFor = $pharmacist->id;
+                $left = self::PIN_ATTEMPTS - RateLimiter::attempts(self::pinKey($pharmacist->id)) - 1;
+                throw new BusinessRuleException('pin_wrong', 'The PIN is wrong.', ['tries_left' => max(0, $left)]);
             }
             throw new BusinessRuleException('pharmacist_required', 'A registered pharmacist must approve this bill with their PIN.');
         }
