@@ -6,6 +6,9 @@ Status: **accepted 2026-11-11** (owner said to continue; no changes requested). 
 
 - Username + password; passwords hashed with Laravel's default (bcrypt/argon2). Minimum length 8.
 - Sanctum cookie sessions (HttpOnly, SameSite=Lax, Secure on HTTPS). No tokens in browser storage.
+  The session is issued to the application's own hosts and to any origin in the private address ranges
+  (192.168.x.x, 10.x.x.x, 172.16–31.x.x), so a phone on the shop network needs no setting when the PC's
+  address changes (D-058); any other origin is refused at sign-in (`not_shop_network`).
 - CSRF protection on all state-changing requests.
 - Login rate limiting (per username + IP); temporary lockout after repeated failures.
 - Optional 4–6 digit PIN (hashed) used only to *authorise an action* at the counter (pharmacist

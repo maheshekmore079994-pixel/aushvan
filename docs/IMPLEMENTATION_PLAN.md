@@ -22,6 +22,7 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   clean PC, Inno installer, backup to USB (Phase 8 item brought forward), slimmer package — then the mobile app
   wrapper once hosting exists. After that Phase 4 (suppliers and purchases, with MR contacts) and day closing,
   both required before a shop runs on AUSHVAN daily.
+- **2026-11-22 (later):** phone sign-in from any shop-network address (D-058), after the Wi-Fi changed.
 - **2026-11-22:** scan-to-add products (D-056), phone fixes (request keys on plain http, visible errors), demo
   shop configurable (`DEMO_*` in .env; currently Jay Mahakali Medical and General Stores, Khadavli), first
   Windows package built and proven (KNOWN_ISSUES D1–D6).

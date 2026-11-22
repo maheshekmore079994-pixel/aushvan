@@ -18,11 +18,15 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
+    'stateful' => array_values(array_unique(array_merge(
+        explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+            '%s%s',
+            'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+            Sanctum::currentApplicationUrlWithPort(),
+        ))),
+        // Phones and other PCs on the shop's own network (private address ranges) may sign in with the
+        // session cookie whatever address the router hands out, so a Wi-Fi change needs no setting (D-058).
+        ['192.168.*', '10.*', '172.16.*', '172.17.*', '172.18.*', '172.19.*', '172.2*', '172.30.*', '172.31.*'],
     ))),
 
     /*

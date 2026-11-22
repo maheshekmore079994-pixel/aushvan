@@ -42,6 +42,15 @@ class AuthController extends Controller
 
     public function login(Request $request): JsonResponse
     {
+        // Only the app's own front end (the shop PC, a device on the shop's network, a listed host) gets a
+        // session; an unknown origin gets a plain refusal instead of a server error (D-058).
+        if (! $request->hasSession()) {
+            return response()->json([
+                'code' => 'not_shop_network',
+                'message' => 'Sign in from the shop PC or a device on the shop Wi-Fi.',
+            ], 403);
+        }
+
         $data = $request->validate([
             'username' => ['required', 'string', 'max:50'],
             'password' => ['required', 'string', 'max:100'],

@@ -18,9 +18,15 @@ Start the server so that other devices can reach it:
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-Then open **http://192.168.0.108:8000** on the phone (that is this PC's Wi-Fi address today; check with
-`ipconfig` → "Wireless LAN adapter Wi-Fi" → "IPv4 Address" if the Wi-Fi changed, and update the
-`SANCTUM_STATEFUL_DOMAINS` line in `.env` to the new `address:8000`, otherwise the login is refused).
+Find the PC's address on this Wi-Fi (it changes when you join another network or the router restarts):
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias Wi-Fi | Select-Object -ExpandProperty IPAddress
+```
+
+Then open **http://THAT-ADDRESS:8000** on the phone (for example http://192.168.1.115:8000). Nothing else
+changes with the address: any device on the shop's own network (192.168.x.x, 10.x.x.x, 172.16–31.x.x) may sign in.
+Keep the server running with `--host=0.0.0.0`; the firewall rule below is needed once per PC, not per network.
 
 The first time, allow it through Windows Firewall — run **PowerShell as Administrator** once:
 

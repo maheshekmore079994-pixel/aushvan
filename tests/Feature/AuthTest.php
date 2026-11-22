@@ -79,6 +79,26 @@ class AuthTest extends TestCase
         $this->assertGuest('web');
     }
 
+    /** A phone on the shop Wi-Fi keeps its login whatever address the router hands out (D-058). */
+    public function test_a_phone_on_the_shop_network_stays_signed_in_from_any_private_address(): void
+    {
+        $user = $this->userWithRole(RoleName::Cashier, ['username' => 'ravi']);
+
+        foreach (['http://192.168.1.115:8000', 'http://10.0.0.7:8000', 'http://172.20.3.4:8765'] as $origin) {
+            $this->flushSession();
+            $this->withHeader('Origin', $origin)
+                ->postJson('/api/v1/auth/login', ['username' => 'ravi', 'password' => 'password'])->assertOk();
+            $this->withHeader('Origin', $origin)->getJson('/api/v1/auth/me')->assertOk()->assertJsonPath('id', $user->id);
+        }
+
+        // A public web site that happens to know the address is not a stateful front end.
+        $this->flushSession();
+        $this->withHeader('Origin', 'http://evil.example.com')
+            ->postJson('/api/v1/auth/login', ['username' => 'ravi', 'password' => 'password'])
+            ->assertForbidden()->assertJsonPath('code', 'not_shop_network');
+        $this->assertSame(3, AuditLog::where('action', 'auth.login')->count(), 'the refused attempt never reached the login');
+    }
+
     public function test_wrong_password_is_rejected_and_logged(): void
     {
         $this->userWithRole(RoleName::Cashier, ['username' => 'ravi']);

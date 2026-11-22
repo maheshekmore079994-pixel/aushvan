@@ -179,6 +179,14 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - In backend tests one user object is reused across requests: after changing the shop, call `$user->unsetRelation('store')`.
 - ULIDs use Crockford base32 (no I, L, O, U); the server rejects anything else.
 - API requests from tests need the `Origin` header (set in `Tests\TestCase`) so the session-cookie login applies.
+  Any private-range origin (192.168.*, 10.*, 172.16–31.*) is stateful by configuration (D-058); a non-stateful
+  origin is refused at login with `not_shop_network`, never with a session error.
+- Run `npm test` from PowerShell (or with the drive letter in upper case). From Git Bash's `/f/...` cwd Vitest
+  loads two copies of itself ("failed to find the current suite") and every file fails before running.
+- Do not run the frontend and backend suites at the same time: the frontend tests time out under the PHP load.
+- After a reboot the WAMP MariaDB service may be stopped and cannot be started without admin rights; run
+  `F:\wamp64\bin\mariadb\mariadb10.10.2\bin\mysqld.exe --defaults-file=...\my.ini --console` as a background
+  process instead.
 
 ## Environment notes
 

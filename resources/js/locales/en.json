@@ -81,7 +81,8 @@
         "point_bill": "Fast bills for medicines and general goods",
         "point_stock": "Stock, batches and expiry always in view",
         "point_udhar": "Udhar of every customer, to the rupee",
-        "mascot_hello": "Namaste! I am Sathi, your shop helper."
+        "mascot_hello": "Namaste! I am Sathi, your shop helper.",
+        "not_shop_network": "Sign in from the shop PC or from a phone on the shop Wi-Fi."
     },
     "dashboard": {
         "greeting_morning": "Good morning, {{name}}",

@@ -67,6 +67,7 @@ function useFormError() {
     let message: string | null = null;
     if (error instanceof NetworkError) message = t('app.no_connection_help');
     else if (error instanceof ApiError && error.status === 429) message = t('auth.too_many');
+    else if (error instanceof ApiError && error.code === 'not_shop_network') message = t('auth.not_shop_network');
     else if (error instanceof ApiError && error.status !== 422) message = error.message;
     else if (error && !(error instanceof ApiError)) message = t('app.error_generic');
 
