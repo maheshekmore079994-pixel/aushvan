@@ -11,6 +11,9 @@ export type Dashboard = {
     udhar: { total_paise: number; customers: number; top: { id: number; name: string; village: string | null; balance_paise: number }[] };
     /** Only for users who enter purchases. */
     supplier_dues?: { total_paise: number; suppliers: number; overdue_paise: number; drafts: number };
+    /** Only for users who close the day or enter expenses. */
+    day?: { id: number; status: 'open' | 'closed'; business_date: string } | null;
+    expenses_today?: { total_paise: number };
     low_stock: {
         id: number;
         name: string;

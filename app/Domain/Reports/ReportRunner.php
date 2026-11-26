@@ -7,7 +7,9 @@ use App\Domain\Catalog\ProductQuery;
 use App\Domain\Shared\Rate;
 use App\Domain\Shared\ShopClock;
 use App\Enums\Permission;
+use App\Models\CashSession;
 use App\Models\Customer;
+use App\Models\Expense;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -49,6 +51,8 @@ final class ReportRunner
         'purchases' => ['group' => 'purchases', 'filters' => ['period']],
         'purchases_by_item' => ['group' => 'purchases', 'filters' => ['period', 'type']],
         'supplier_dues' => ['group' => 'purchases', 'filters' => []],
+        'expenses' => ['group' => 'cash', 'filters' => ['period']],
+        'day_closings' => ['group' => 'cash', 'filters' => ['period']],
     ];
 
     private User $user;
@@ -93,6 +97,8 @@ final class ReportRunner
             'purchases' => $this->purchases($resolved),
             'purchases_by_item' => $this->purchasesByItem($resolved),
             'supplier_dues' => $this->supplierDues(),
+            'expenses' => $this->expenses($resolved),
+            'day_closings' => $this->dayClosings($resolved),
         };
 
         $truncated = count($rows) > self::MAX_ROWS;
@@ -154,7 +160,11 @@ final class ReportRunner
         }
 
         $saleType = (new Sale)->getMorphClass();
+        $customerType = (new Customer)->getMorphClass();
+        // Money in against bills, and money in from customers on account (udhar); refunds from suppliers and
+        // cancelled expenses are money in too, but they are not sales and belong to other reports.
         $payments = DB::table('payments')->where('store_id', $this->storeId)->where('direction', 'in')
+            ->where(fn ($q) => $q->where('payable_type', $saleType)->orWhere(fn ($w) => $w->whereNull('payable_type')->where('party_type', $customerType)))
             ->whereDate('business_date', '>=', $f['from'])->whereDate('business_date', '<=', $f['to'])
             ->groupBy('business_date', 'method', 'payable_type')
             ->selectRaw('business_date, method, payable_type, SUM(amount_paise) as amount')
@@ -608,6 +618,61 @@ final class ReportRunner
             self::columns([['supplier', 'text'], ['mobile', 'text'], ['balance', 'money'], ['overdue', 'money'], ['due_date', 'date'], ['last_payment', 'date']]),
             $rows,
             ['balance', 'overdue'],
+        ];
+    }
+
+    // ---- Cash and expenses -------------------------------------------------------------------
+
+    /** Every expense in the period, by its own date (a cancelled one is listed with a zero amount, never netted). */
+    private function expenses(array $f): array
+    {
+        $rows = Expense::where('store_id', $this->storeId)
+            ->whereDate('expense_date', '>=', $f['from'])->whereDate('expense_date', '<=', $f['to'])
+            ->with(['category:id,name', 'user:id,name'])
+            ->orderBy('expense_date')->orderBy('id')->limit(self::MAX_ROWS + 1)->get()
+            ->map(fn (Expense $e) => [
+                'date' => $e->expense_date->toDateString(),
+                'head' => $e->category->name,
+                'description' => $e->description ?? '',
+                'method' => $e->method,
+                'amount' => $e->isCancelled() ? 0 : $e->amount_paise,
+                'status' => $e->isCancelled() ? 'cancelled' : 'ok',
+                'by' => $e->user->name,
+            ])->all();
+
+        return [
+            self::columns([['date', 'date'], ['head', 'text'], ['description', 'text'], ['method', 'label', 'pay'], ['amount', 'money'], ['status', 'label', 'reports.expense_status'], ['by', 'text']]),
+            $rows,
+            ['amount'],
+        ];
+    }
+
+    /** Each day of the period as it was closed: opening, expected, counted and the difference. */
+    private function dayClosings(array $f): array
+    {
+        $rows = CashSession::where('store_id', $this->storeId)
+            ->whereDate('business_date', '>=', $f['from'])->whereDate('business_date', '<=', $f['to'])
+            ->with(['closer:id,name'])
+            ->orderBy('business_date')->limit(self::MAX_ROWS + 1)->get()
+            ->map(fn (CashSession $s) => [
+                'date' => $s->business_date->toDateString(),
+                'opening_cash' => $s->opening_cash_paise,
+                'cash_sales' => (int) ($s->summary['cash']['cash_sales'] ?? 0),
+                'expenses' => (int) ($s->summary['cash']['expenses'] ?? 0),
+                'expected' => $s->expected_cash_paise ?? 0,
+                'counted' => $s->counted_cash_paise ?? 0,
+                'difference' => $s->difference_paise ?? 0,
+                'status' => $s->status,
+                'closed_by' => $s->closer?->name ?? '',
+            ])->all();
+
+        return [
+            self::columns([
+                ['date', 'date'], ['opening_cash', 'money'], ['cash_sales', 'money'], ['expenses', 'money'], ['expected', 'money'],
+                ['counted', 'money'], ['difference', 'money'], ['status', 'label', 'reports.day_status'], ['closed_by', 'text'],
+            ]),
+            $rows,
+            ['cash_sales', 'expenses', 'difference'],
         ];
     }
 }

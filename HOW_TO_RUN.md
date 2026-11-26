@@ -145,7 +145,8 @@ Windows shows an "unknown publisher" warning for the unsigned program — "More 
 
 ## 9. What NOT to promise in a demo
 
-Expenses, day closing, the Windows installer and the mobile app are **not built yet**. Purchases and
+The Windows installer and the mobile app are **not built yet**. Day closing (Sales → Day Closing) and
+expenses (Reports → Expenses) are built. Purchases and
 suppliers are built (Purchase → Purchases / Suppliers; a purchase is a draft until "Confirm & add to stock"). Backup is built (section 10); restore is a command, not a screen. The software has not run on a real printer or on a real phone with real packs. GST reports are
 for information; GST filing and e-invoicing are not implemented. See `docs/IMPLEMENTATION_PLAN.md`.
 

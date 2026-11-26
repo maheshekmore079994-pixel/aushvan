@@ -65,7 +65,9 @@
         "backup": "Backup",
         "purchases": "Purchases",
         "suppliers": "Suppliers",
-        "group_purchase": "Purchase"
+        "group_purchase": "Purchase",
+        "day": "Day Closing",
+        "expenses": "Expenses"
     },
     "auth": {
         "login_title": "Sign in",
@@ -159,7 +161,11 @@
         "supplier_dues": "To pay suppliers",
         "supplier_overdue": "{{amount}} past due date",
         "purchase_drafts_one": "{{count}} purchase draft to finish",
-        "purchase_drafts_other": "{{count}} purchase drafts to finish"
+        "purchase_drafts_other": "{{count}} purchase drafts to finish",
+        "day_open": "Day open",
+        "day_closed": "Day not open",
+        "day_button": "Day Closing",
+        "expenses_today": "Expenses today"
     },
     "shop": {
         "title": "Shop details",
@@ -322,7 +328,15 @@
         "product_missing": "This product is no longer available.",
         "batch_missing": "This batch no longer exists.",
         "batch_not_from_supplier": "This batch was not bought from this supplier.",
-        "return_empty": "Choose at least one batch."
+        "return_empty": "Choose at least one batch.",
+        "day_already_open": "A day is already open.",
+        "day_already_closed": "Today was already closed. The owner can reopen it.",
+        "day_not_open": "Open the day first.",
+        "day_not_closed": "This day is not closed.",
+        "day_not_latest": "Only the most recent closed day can be reopened.",
+        "not_enough_cash": "There is not that much cash in the drawer.",
+        "expense_category_missing": "Choose an expense head.",
+        "expense_cancelled": "This expense is already cancelled."
     },
     "products": {
         "type": {
@@ -650,7 +664,8 @@
             "sales": "Sales",
             "stock": "Stock",
             "udhar": "Udhar",
-            "purchases": "Purchases"
+            "purchases": "Purchases",
+            "cash": "Cash & expenses"
         },
         "name": {
             "sales_by_day": "Daily sales",
@@ -666,7 +681,9 @@
             "returns": "Returns",
             "purchases": "Purchases",
             "purchases_by_item": "Purchases by item",
-            "supplier_dues": "Supplier dues"
+            "supplier_dues": "Supplier dues",
+            "expenses": "Expenses",
+            "day_closings": "Day closings"
         },
         "about": {
             "sales_by_day": "Bills, total and how the money came in, day by day.",
@@ -682,7 +699,9 @@
             "returns": "Goods taken back from customers: credit notes with the money given back or taken off udhar.",
             "purchases": "Every supplier invoice in the period with tax, paid and left to pay.",
             "purchases_by_item": "What was bought, how much of it free, and at what cost.",
-            "supplier_dues": "What the shop owes each supplier, and how much is past its due date."
+            "supplier_dues": "What the shop owes each supplier, and how much is past its due date.",
+            "expenses": "Every expense in the period with its head and how it was paid.",
+            "day_closings": "Each closed day: opening cash, expected, counted and the difference."
         },
         "col": {
             "date": "Date",
@@ -743,7 +762,17 @@
             "due_date": "Pay by",
             "free": "Free",
             "purchases": "Purchases",
-            "overdue": "Past due"
+            "overdue": "Past due",
+            "head": "Head",
+            "description": "What for",
+            "method": "Paid by",
+            "opening_cash": "Opening cash",
+            "expected": "Expected",
+            "counted": "Counted",
+            "difference": "Difference",
+            "cash_sales": "Cash sales",
+            "expenses": "Expenses",
+            "closed_by": "Closed by"
         },
         "preset": {
             "today": "Today",
@@ -765,7 +794,15 @@
         "truncated": "Only the first {{count}} lines are shown. Choose a shorter period.",
         "excel": "Excel",
         "pdf": "PDF",
-        "csv": "CSV"
+        "csv": "CSV",
+        "expense_status": {
+            "ok": "OK",
+            "cancelled": "Cancelled"
+        },
+        "day_status": {
+            "open": "Open",
+            "closed": "Closed"
+        }
     },
     "roles": {
         "title": "Roles",
@@ -1150,5 +1187,78 @@
         "gst": "GST",
         "totals": "Totals",
         "subtotal": "Subtotal"
+    },
+    "day": {
+        "title": "Day Closing",
+        "intro": "Open the day with the cash in the drawer. Through the day every cash rupee in and out is counted here; at night count the drawer and close.",
+        "open_since": "Open for {{date}} (opened by {{by}})",
+        "not_open": "No day is open.",
+        "history": "Past days",
+        "open": "Open day",
+        "close": "Close day",
+        "reopen": "Reopen day",
+        "put_in": "Put cash in",
+        "take_out": "Take cash out",
+        "last_closed": "Last closed: {{date}}",
+        "cash_in_drawer": "Cash in the drawer",
+        "opening_cash": "Opening cash",
+        "cash_sales": "Cash sales",
+        "udhar_received": "Udhar received in cash",
+        "supplier_refunds": "Received back from suppliers",
+        "other_in": "Other cash in",
+        "refunds": "Cash refunds",
+        "expenses": "Expenses in cash",
+        "paid_to_suppliers": "Paid to suppliers in cash",
+        "other_out": "Other cash out",
+        "taken_out": "Cash taken out",
+        "expected": "Cash that should be there",
+        "counted_since": "Counted from the last closing until now, so a bill made after last night’s count is in today’s drawer.",
+        "non_cash": "Not cash (compare with the UPI / bank app)",
+        "non_cash_help": "Money received today by UPI, card and bank transfer.",
+        "bills_today": "Bills today",
+        "bills_line_one": "{{count}} bill · udhar {{udhar}}",
+        "bills_line_other": "{{count}} bills · udhar {{udhar}}",
+        "movements": "Cash put in / taken out",
+        "movement": {
+            "cash_in": "Cash put in",
+            "bank_deposit": "Bank deposit",
+            "owner_withdrawal": "Owner took cash",
+            "other_out": "Other cash out"
+        },
+        "movement_type": "What happened",
+        "counted": "Counted cash",
+        "counted_help": "Count the notes and coins in the drawer and type the total.",
+        "difference": "Difference",
+        "closed_by": "Closed by",
+        "note": "Note",
+        "diff_ok": "Matches exactly.",
+        "diff_over": "{{amount}} more than expected.",
+        "diff_short": "{{amount}} short.",
+        "opening_help": "The cash in the drawer right now (yesterday’s counted cash is suggested).",
+        "opened": "Day opened.",
+        "closed_done": "Day closed.",
+        "moved": "Saved.",
+        "reopened": "Day reopened.",
+        "reopen_help": "Only the owner can reopen the most recent closed day, with a reason that is logged. Close it again when done.",
+        "was_reopened": "Reopened: {{reason}}",
+        "no_history": "No day has been closed yet.",
+        "status_open": "Open"
+    },
+    "expenses": {
+        "title": "Expenses",
+        "add": "Add expense",
+        "heads": "Expense heads",
+        "head": "Head",
+        "all_heads": "All heads",
+        "description": "What for",
+        "none": "No expenses in this period.",
+        "total_period": "Total for the period",
+        "saved": "Expense saved.",
+        "cancel": "Cancel expense",
+        "cancel_help": "Cancel this expense of {{amount}}? It stays in the list, struck out, and the money is counted back.",
+        "cancelled_done": "Expense cancelled.",
+        "cancelled_tag": "cancelled: {{reason}}",
+        "new_head": "New head",
+        "add_head": "Add"
     }
 }

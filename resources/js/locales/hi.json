@@ -65,7 +65,9 @@
         "backup": "बैकअप",
         "purchases": "खरीद",
         "suppliers": "सप्लायर",
-        "group_purchase": "खरीद"
+        "group_purchase": "खरीद",
+        "day": "दिन बंद",
+        "expenses": "खर्च"
     },
     "auth": {
         "login_title": "लॉगिन",
@@ -159,7 +161,11 @@
         "supplier_dues": "सप्लायरों को देना",
         "supplier_overdue": "{{amount}} तारीख़ निकल चुकी",
         "purchase_drafts_one": "{{count}} खरीद ड्राफ़्ट पूरा करना है",
-        "purchase_drafts_other": "{{count}} खरीद ड्राफ़्ट पूरे करने हैं"
+        "purchase_drafts_other": "{{count}} खरीद ड्राफ़्ट पूरे करने हैं",
+        "day_open": "दिन खुला",
+        "day_closed": "दिन खुला नहीं",
+        "day_button": "दिन बंद",
+        "expenses_today": "आज का खर्च"
     },
     "shop": {
         "title": "दुकान की जानकारी",
@@ -322,7 +328,15 @@
         "product_missing": "यह उत्पाद अब उपलब्ध नहीं।",
         "batch_missing": "यह बैच अब नहीं है।",
         "batch_not_from_supplier": "यह बैच इस सप्लायर से नहीं लिया गया।",
-        "return_empty": "कम से कम एक बैच चुनें।"
+        "return_empty": "कम से कम एक बैच चुनें।",
+        "day_already_open": "एक दिन पहले से खुला है।",
+        "day_already_closed": "आज का दिन पहले ही बंद हो चुका। मालिक इसे फिर खोल सकता है।",
+        "day_not_open": "पहले दिन खोलें।",
+        "day_not_closed": "यह दिन बंद नहीं है।",
+        "day_not_latest": "सिर्फ़ सबसे हाल का बंद दिन फिर खोला जा सकता है।",
+        "not_enough_cash": "गल्ले में इतनी नकदी नहीं है।",
+        "expense_category_missing": "खर्च का मद चुनें।",
+        "expense_cancelled": "यह खर्च पहले ही रद्द है।"
     },
     "products": {
         "type": {
@@ -650,7 +664,8 @@
             "sales": "बिक्री",
             "stock": "स्टॉक",
             "udhar": "उधार",
-            "purchases": "खरीद"
+            "purchases": "खरीद",
+            "cash": "नकद व खर्च"
         },
         "name": {
             "sales_by_day": "रोज़ की बिक्री",
@@ -666,7 +681,9 @@
             "returns": "वापसियाँ",
             "purchases": "खरीद",
             "purchases_by_item": "चीज़ के हिसाब से खरीद",
-            "supplier_dues": "सप्लायर बकाया"
+            "supplier_dues": "सप्लायर बकाया",
+            "expenses": "खर्च",
+            "day_closings": "दिन बंद"
         },
         "about": {
             "sales_by_day": "दिन-ब-दिन बिल, कुल रकम और पैसा कैसे आया।",
@@ -682,7 +699,9 @@
             "returns": "ग्राहकों से वापस लिया माल: क्रेडिट नोट, लौटाया या उधार से घटाया पैसा।",
             "purchases": "अवधि का हर सप्लायर बिल — कर, दिया और बाकी।",
             "purchases_by_item": "क्या खरीदा, उसमें कितना फ्री, और किस लागत पर।",
-            "supplier_dues": "दुकान हर सप्लायर को कितना देती है और कितना तारीख़ निकल चुका।"
+            "supplier_dues": "दुकान हर सप्लायर को कितना देती है और कितना तारीख़ निकल चुका।",
+            "expenses": "अवधि का हर खर्च — मद और भुगतान का तरीका।",
+            "day_closings": "हर बंद दिन: शुरुआती नकद, अपेक्षित, गिना और अंतर।"
         },
         "col": {
             "date": "तारीख",
@@ -743,7 +762,17 @@
             "due_date": "देने की तारीख़",
             "free": "फ्री",
             "purchases": "खरीदें",
-            "overdue": "तारीख़ निकली"
+            "overdue": "तारीख़ निकली",
+            "head": "मद",
+            "description": "किसलिए",
+            "method": "कैसे दिया",
+            "opening_cash": "शुरुआती नकद",
+            "expected": "अपेक्षित",
+            "counted": "गिना",
+            "difference": "अंतर",
+            "cash_sales": "नकद बिक्री",
+            "expenses": "खर्च",
+            "closed_by": "बंद किया"
         },
         "preset": {
             "today": "आज",
@@ -765,7 +794,15 @@
         "truncated": "सिर्फ़ पहली {{count}} पंक्तियाँ दिखाई गई हैं। छोटी अवधि चुनें।",
         "excel": "Excel",
         "pdf": "PDF",
-        "csv": "CSV"
+        "csv": "CSV",
+        "expense_status": {
+            "ok": "ठीक",
+            "cancelled": "रद्द"
+        },
+        "day_status": {
+            "open": "खुला",
+            "closed": "बंद"
+        }
     },
     "roles": {
         "title": "भूमिकाएँ",
@@ -1150,5 +1187,78 @@
         "gst": "GST",
         "totals": "जोड़",
         "subtotal": "उप-जोड़"
+    },
+    "day": {
+        "title": "दिन बंद करना",
+        "intro": "गल्ले की नकदी से दिन खोलें। दिन भर अंदर-बाहर जाने वाला हर नकद रुपया यहाँ गिना जाता है; रात को गल्ला गिनकर दिन बंद करें।",
+        "open_since": "{{date}} के लिए खुला ({{by}} ने खोला)",
+        "not_open": "कोई दिन खुला नहीं।",
+        "history": "पिछले दिन",
+        "open": "दिन खोलें",
+        "close": "दिन बंद करें",
+        "reopen": "दिन फिर खोलें",
+        "put_in": "नकद डालें",
+        "take_out": "नकद निकालें",
+        "last_closed": "आख़िरी बंद: {{date}}",
+        "cash_in_drawer": "गल्ले की नकदी",
+        "opening_cash": "शुरुआती नकद",
+        "cash_sales": "नकद बिक्री",
+        "udhar_received": "उधार नकद मिला",
+        "supplier_refunds": "सप्लायर से वापस मिला",
+        "other_in": "अन्य नकद अंदर",
+        "refunds": "नकद वापसी",
+        "expenses": "नकद खर्च",
+        "paid_to_suppliers": "सप्लायरों को नकद दिया",
+        "other_out": "अन्य नकद बाहर",
+        "taken_out": "निकाली गई नकदी",
+        "expected": "जितनी नकदी होनी चाहिए",
+        "counted_since": "पिछले बंद से अब तक गिना गया, इसलिए कल रात की गिनती के बाद का बिल आज के गल्ले में है।",
+        "non_cash": "नकद नहीं (UPI / बैंक ऐप से मिलाएँ)",
+        "non_cash_help": "आज UPI, कार्ड और बैंक ट्रांसफ़र से मिले पैसे।",
+        "bills_today": "आज के बिल",
+        "bills_line_one": "{{count}} बिल · उधार {{udhar}}",
+        "bills_line_other": "{{count}} बिल · उधार {{udhar}}",
+        "movements": "नकद डाला / निकाला",
+        "movement": {
+            "cash_in": "नकद डाला",
+            "bank_deposit": "बैंक में जमा",
+            "owner_withdrawal": "मालिक ने नकद लिया",
+            "other_out": "अन्य नकद बाहर"
+        },
+        "movement_type": "क्या हुआ",
+        "counted": "गिनी गई नकदी",
+        "counted_help": "गल्ले के नोट और सिक्के गिनकर कुल लिखें।",
+        "difference": "अंतर",
+        "closed_by": "बंद किया",
+        "note": "नोट",
+        "diff_ok": "बिल्कुल मेल खाता है।",
+        "diff_over": "अपेक्षा से {{amount}} ज़्यादा।",
+        "diff_short": "{{amount}} कम।",
+        "opening_help": "अभी गल्ले में जितनी नकदी है (कल की गिनी नकदी सुझाई गई है)।",
+        "opened": "दिन खुला।",
+        "closed_done": "दिन बंद हुआ।",
+        "moved": "सहेजा गया।",
+        "reopened": "दिन फिर खुला।",
+        "reopen_help": "सिर्फ़ मालिक सबसे हाल का बंद दिन कारण देकर फिर खोल सकता है; कारण दर्ज होता है। काम होने पर फिर बंद करें।",
+        "was_reopened": "फिर खोला: {{reason}}",
+        "no_history": "अभी कोई दिन बंद नहीं हुआ।",
+        "status_open": "खुला"
+    },
+    "expenses": {
+        "title": "खर्च",
+        "add": "खर्च दर्ज करें",
+        "heads": "खर्च के मद",
+        "head": "मद",
+        "all_heads": "सभी मद",
+        "description": "किसलिए",
+        "none": "इस अवधि में कोई खर्च नहीं।",
+        "total_period": "अवधि का कुल",
+        "saved": "खर्च सहेजा गया।",
+        "cancel": "खर्च रद्द करें",
+        "cancel_help": "{{amount}} का यह खर्च रद्द करें? यह सूची में कटा हुआ रहेगा और पैसे वापस गिने जाएँगे।",
+        "cancelled_done": "खर्च रद्द हुआ।",
+        "cancelled_tag": "रद्द: {{reason}}",
+        "new_head": "नया मद",
+        "add_head": "जोड़ें"
     }
 }

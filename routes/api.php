@@ -4,6 +4,8 @@ use App\Enums\Permission;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\CustomerController;
+use App\Http\Controllers\Api\V1\DayController;
+use App\Http\Controllers\Api\V1\ExpenseController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Http\Controllers\Api\V1\PurchaseReturnController;
@@ -110,6 +112,27 @@ Route::prefix('v1')->group(function () {
             Route::get('purchase-returns/lots', [PurchaseReturnController::class, 'lots']);
             Route::post('purchase-returns', [PurchaseReturnController::class, 'store'])->middleware('idempotent:required');
             Route::get('purchase-returns/{purchaseReturn}', [PurchaseReturnController::class, 'show']);
+        });
+
+        // The cash day: anyone who bills may look; opening, closing and moving cash need day.close; reopening day.reopen.
+        Route::get('day', [DayController::class, 'show'])->middleware('can:day.view');
+        Route::get('day/history', [DayController::class, 'history'])->middleware('can:day.view');
+        Route::get('day/{session}', [DayController::class, 'session'])->middleware('can:day.view');
+        Route::middleware(['can:'.Permission::DAY_CLOSE, 'idempotent:required'])->group(function () {
+            Route::post('day/open', [DayController::class, 'open']);
+            Route::post('day/close', [DayController::class, 'close']);
+            Route::post('day/movements', [DayController::class, 'move']);
+        });
+        Route::post('day/{session}/reopen', [DayController::class, 'reopen'])->middleware(['can:'.Permission::DAY_REOPEN, 'idempotent:required']);
+
+        // Expenses
+        Route::middleware('can:'.Permission::EXPENSES_MANAGE)->group(function () {
+            Route::get('expenses', [ExpenseController::class, 'index']);
+            Route::post('expenses', [ExpenseController::class, 'store'])->middleware('idempotent:required');
+            Route::post('expenses/{expense}/cancel', [ExpenseController::class, 'cancel'])->middleware('idempotent:required');
+            Route::get('expense-categories', [ExpenseController::class, 'categories']);
+            Route::post('expense-categories', [ExpenseController::class, 'storeCategory'])->middleware('idempotent');
+            Route::put('expense-categories/{category}', [ExpenseController::class, 'updateCategory']);
         });
 
         // Home screen and reports

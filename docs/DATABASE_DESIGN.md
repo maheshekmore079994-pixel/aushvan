@@ -304,3 +304,7 @@ not modelled beyond `store_id`.
 | `purchase_returns` | `purchase_id` nullable | No `purchase_id`: a debit note names batches, each batch knows its purchase line; `refund_method` added; unique (store_id, return_no) | Same |
 | `purchase_return_items` | `rate`, amount fields | `cost_rate`, tax rate and split, `line_total_paise`, `product_name`, `batch_no`, `bucket` | Same |
 | `stock_batches` | `supplier_id`, `purchase_item_id` | Added 2026-11-26 (nullable; null = opening stock) | Same |
+| `cash_sessions` | `expected/counted/difference`, status | As designed plus `summary` (JSON of the figures at closing), `reopened_by/at/reason`; unique (store_id, business_date) | Built 2026-11-26 (D-062) |
+| `cash_movements` | as designed | Plus `ulid`, `store_id`; append-only | Same |
+| `payments.cash_session_id` | not in the design | Added: the open day at the moment of payment, or the day that later adopted it (D-062) | Same |
+| `expense_categories`, `expenses` | as designed | `expenses` adds `method`, `reference_no`, `cancelled_by/at/reason`; `expense_categories` per store with `name_local`, `sort_order` | Same |

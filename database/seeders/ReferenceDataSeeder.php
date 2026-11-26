@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\DrugSchedule;
+use App\Models\ExpenseCategory;
 use App\Models\Store;
 use App\Models\TaxRate;
 use App\Models\Unit;
@@ -63,6 +64,7 @@ class ReferenceDataSeeder extends Seeder
 
         foreach (Store::all() as $store) {
             $this->categoriesFor($store->id);
+            ExpenseCategory::seedDefaults($store->id);
         }
     }
 

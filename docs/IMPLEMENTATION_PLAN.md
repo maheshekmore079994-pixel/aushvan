@@ -10,7 +10,7 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   printing, role management, Hindi, and phone-friendly screens, pointing at MargBooks and Vyapar as references.
   That work was done next, ahead of the planned order (decision D-030): it brought forward the reports from
   Phase 7, the role screen from Phase 8, Hindi and label printing from V1.
-- **Not built:** hold/resume, line discounts on the sale screen, H1 register report, expenses, day closing, restore screen,
+- **Not built:** hold/resume, line discounts on the sale screen, H1 register report, restore screen,
   Windows installer (zip exists), mobile app. Purchases and suppliers (Phase 4) and backup were built on 2026-11-26.
 - **Phases 1–3 are not closed.** Open for all: no
   bill, report or label has been printed on a real printer. Screens were checked from screenshots of the running
@@ -19,10 +19,11 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   `owner`, `pharmacist`, `manager`, `cashier`, password `demo-pass-123`; pharmacist PIN `1234`. 80 products
   with stock, 6 customers, 62 bills over 14 days (10 today: cash, UPI, card, split, udhar, prescription).
 - **Next task (owner instruction of 2026-11-26: finish the remaining modules, then host on the friend's cPanel server and demo):**
-  Phase 7 day closing and expenses (open day, close day with cash count, expenses, day report), then Phase 5 udhar extras
+  Phase 5 udhar extras
   (statement print, credit limit, advances), Phase 6 compliance screens (doctor master, H1 register, expiry actions, licence
   on bills), POS extras (hold/resume, discount limits), restore screen; then the hosted deployment (subdomain on
   naturepestservices.com, https, cron for backups) and the demo. Desktop: owner test of the zip and the Inno installer still pending.
+- **2026-11-26 (Phase 7):** day closing (cash day with stamp-and-adopt payments, D-062), cash movements, expenses with heads, two reports, dashboard tile and card. Reviewer: 11 findings (reopen without the shop lock, a payment lost at the closing second, expense refunds counted as udhar in sales-by-day, stale fields after reopen, duplicate heads) — fixed; the tester agent was stopped by the usage limit, so the robustness tests (8) were written by the developer. 15 backend tests, 4 frontend tests.
 - **2026-11-26 (Phase 4):** suppliers with MR contacts, purchases (draft → confirm → stock), supplier payments, purchase cancel and returns (D-061); 3 purchase reports and a supplier-dues card. Review + tester round: reviewer 14 findings (MRP put back on cancel, return taxed at purchase-time rate, batch returnable only to its supplier, no float in price history, locked draft delete, product checks on confirm, bounded dates and percents), tester 24 tests and one bug (zero-total confirm crashed); all fixed. 42 backend tests for the module.
 - **2026-11-26 (later):** desktop zip rebuilt with Backup and proven with the bundled PHP (migrate, demo seed, Marathi PDF, verified backup, restore) and by starting the launcher over the 22 Nov install; package slimmed to 131 MB / 50 MB zip (D-060); build script no longer packs development backups or uploads.
 - **2026-11-26:** backup to a USB stick / second disk with verification, automatic daily copy, restore command (D-059); desktop zip must be rebuilt to include it. Review + tester round: 16 findings, all confirmed ones fixed (folder check on real paths before anything is created, restore source protected from retention, one backup at a time, failed attempts leave no file, volatile tables left out, uploads checksummed, auto-backup back-off, counts checked inside the restore transaction, folder errors as translated codes); 39 backup tests (`BackupTest`, `BackupRobustnessTest`).
@@ -192,8 +193,8 @@ Exit: a user can set up the shop, log in, switch language, manage users; tests g
 
 ## Phase 7 — Expenses, day closing, reports
 
-- [ ] Expenses
-- [ ] Open day / close day / reopen
+- [x] Expenses — built 2026-11-26 (D-062): heads per shop, entry with method and date, cancel with reason, period list by head, report
+- [x] Open day / close day / reopen — built 2026-11-26 (D-062): Day Closing screen with the drawer arithmetic, cash in/out, counted cash and difference, history of closed days, owner reopen; dashboard tile and "Expenses today" card; reports "Expenses" and "Day closings"
 - [~] Reports with print and export — sales, stock, GST and udhar reports are built (see above). Purchases,
       expenses, day book, cash register and the medical registers come with their modules.
 - [~] Dashboard — built except purchases, expenses, supplier dues and the day open/closed state

@@ -29,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
         // Reading suppliers is open to whoever enters purchases or keeps the supplier list.
         Gate::define('suppliers.view', fn (User $user) => $user->can(Permission::PURCHASES_MANAGE) || $user->can(Permission::SUPPLIERS_MANAGE));
 
+        // The cash day is visible to whoever bills or closes it.
+        Gate::define('day.view', fn (User $user) => $user->can(Permission::SALES_CREATE) || $user->can(Permission::DAY_CLOSE) || $user->can(Permission::DAY_REOPEN));
+
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(300)
             ->by($request->user()?->id ?: $request->ip()));
     }

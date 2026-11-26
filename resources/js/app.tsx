@@ -9,6 +9,8 @@ import { ToastProvider } from '@/components/toast';
 import { LoginPage, SetupPage } from '@/features/auth/AuthScreens';
 import { SessionProvider, useAppStatus, useMe, useSession } from '@/features/auth/session';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { DayHistoryPage, DayPage, DaySessionPage } from '@/features/day/DayPage';
+import { ExpensesPage } from '@/features/day/ExpensesPage';
 import { ExpiryPage } from '@/features/products/ExpiryPage';
 import { LabelsPage } from '@/features/products/LabelsPage';
 import { ProductDetailPage } from '@/features/products/ProductDetailPage';
@@ -113,6 +115,38 @@ export function App() {
                         element={
                             <Guard permission="sales.create">
                                 <CreditNotePage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="day"
+                        element={
+                            <Guard permission={['sales.create', 'day.close', 'day.reopen']}>
+                                <DayPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="day/history"
+                        element={
+                            <Guard permission={['sales.create', 'day.close', 'day.reopen']}>
+                                <DayHistoryPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="day/history/:id"
+                        element={
+                            <Guard permission={['sales.create', 'day.close', 'day.reopen']}>
+                                <DaySessionPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="expenses"
+                        element={
+                            <Guard permission="expenses.manage">
+                                <ExpensesPage />
                             </Guard>
                         }
                     />

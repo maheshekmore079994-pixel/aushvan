@@ -3,8 +3,10 @@ import {
     ArrowUpRight,
     BarChart3,
     Boxes,
+    CalendarCheck,
     CalendarClock,
     CheckCircle2,
+    Coins,
     ChevronRight,
     Circle,
     HandCoins,
@@ -53,6 +55,7 @@ const QUICK: { to: string; label: string; icon: LucideIcon; tone: TileTone; perm
     { to: '/sale', label: 'nav.new_sale', icon: ShoppingCart, tone: 'success', permission: 'sales.create' },
     { to: '/products/new', label: 'products.add', icon: PackagePlus, tone: 'primary', permission: 'products.manage' },
     { to: '/udhar', label: 'udhar.receive', icon: HandCoins, tone: 'warning', permission: 'credit.receive' },
+    { to: '/day', label: 'dashboard.day_button', icon: CalendarCheck, tone: 'medical', permission: 'day.close' },
     { to: '/products', label: 'nav.products', icon: Boxes, tone: 'general' },
     { to: '/expiry', label: 'nav.expiry', icon: CalendarClock, tone: 'danger' },
     { to: '/labels', label: 'nav.labels', icon: ScanBarcode, tone: 'medical', permission: 'products.manage' },
@@ -188,6 +191,12 @@ function KpiRow({ data }: { data: Dashboard }) {
         </Kpi>
     );
 
+    const expenses = data.expenses_today !== undefined && (
+        <Kpi icon={Coins} tone="danger" label={t('dashboard.expenses_today')} value={formatMoney(data.expenses_today.total_paise)} to="/expenses">
+            <span className="text-sm text-ink-soft">{data.day ? (data.day.status === 'open' ? t('dashboard.day_open') : t('dashboard.day_closed')) : t('dashboard.day_closed')}</span>
+        </Kpi>
+    );
+
     if (!data.sales) {
         return (
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -198,6 +207,7 @@ function KpiRow({ data }: { data: Dashboard }) {
                 )}
                 {udhar}
                 {dues}
+                {expenses}
             </div>
         );
     }
@@ -226,6 +236,7 @@ function KpiRow({ data }: { data: Dashboard }) {
                 </Kpi>
             )}
             {dues}
+            {expenses}
         </div>
     );
 }

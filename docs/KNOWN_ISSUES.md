@@ -182,6 +182,16 @@ the demo script's "Enter twice" step.
 | D5 | ~~The package is about 200 MB (PHP runtime 30 MB, vendor 150 MB with mPDF fonts).~~ Closed 2026-11-26: the package ships only the three font families the PDF reports use (D-060): 131 MB unpacked, 50 MB zip. What is left is the PHP runtime (about 55 MB, 30 MB of it the ICU data file) and vendor code. Consequence everywhere (not only the desktop build): a PDF report prints text in a script other than Latin or Devanagari (Kannada, Arabic, Chinese, emoji) as boxes; it no longer crashes (`ReportPdfFontsTest`). CSV and Excel exports carry every script. | A Kannada or Urdu product name shows as boxes in a PDF report. | Add that script's font to `ReportExporter::PDF_FONTS` and to the build script's keep pattern when a shop needs it. |
 | D6 | The packaged application has no code signing certificate. | Windows SmartScreen shows "unknown publisher" the first time. | Accept for the pilot; a certificate later (see OFFLINE_WINDOWS_STRATEGY). |
 
+## Day closing and expenses (2026-11-26)
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| Y1 | The cash day is the span between two counts, not the calendar date (D-062). A day left open past midnight keeps counting the next morning's bills until it is closed; the next date cannot be opened until then. | Reports by calendar date (sales by day) and the day closing can differ when a day was closed late or opened early. | Train: close before leaving, open on arrival. The screen says which date is open. |
+| Y2 | "Cancel bill" is allowed until midnight of the bill's date even after the day was closed (S10 says "before day closing"); the cash goes out of the next day's drawer, where it is counted correctly. | A cancelled bill after closing shows as a refund the next morning. | Owner decision: refuse cancel after the close (then the only way is a return), or keep. |
+| Y3 | A back-dated expense (up to a year) reduces today's drawer, not the drawer of its date. | Yesterday closed short by that amount if the cash really left then. | Documented behaviour; enter expenses on the day. |
+| Y4 | Anyone who may close the day (cashier, pharmacist, manager) may also record a bank deposit or owner withdrawal; both are logged. | A record, not money, but the owner may want withdrawals owner-only. | Owner decision: a separate permission. |
+| Y5 | No day-closing print layout yet beyond the browser's print of the screen (N5). | Printed summary is the screen. | A compact print layout with the shop header when printing is tested on a real printer. |
+
 ## Purchases and suppliers (2026-11-26)
 
 | # | Issue | Impact | Action |

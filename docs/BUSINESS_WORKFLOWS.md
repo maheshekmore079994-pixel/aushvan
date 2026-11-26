@@ -140,6 +140,7 @@ document (debit note number), stock movement (−), supplier ledger reduced (or 
 Quantity cannot exceed what is in the chosen lot.
 
 ## S12. Day closing
+*Built 2026-11-26 (D-062). The day is the span between two counts: a payment made while no day is open is counted by the next day that opens. Step 2 is literal: every payment row carries its cash day.*
 1. Day starts with **Open day**: opening cash (defaults to yesterday's counted cash).
 2. During the day every cash payment in/out is tied to the open day.
 3. **Day Closing** shows: opening cash + cash sales + cash received against udhar − cash refunds − cash

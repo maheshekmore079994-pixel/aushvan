@@ -6,18 +6,24 @@ use App\Actions\AddOpeningStock;
 use App\Actions\AdjustStock;
 use App\Actions\CompleteSale;
 use App\Actions\ConfirmPurchase;
+use App\Actions\MoveCash;
 use App\Actions\PaySupplier;
 use App\Actions\ReceiveCustomerPayment;
+use App\Actions\RecordExpense;
 use App\Actions\ReturnToSupplier;
 use App\Actions\SaveProduct;
 use App\Actions\SetUpShop;
+use App\Domain\Cash\DayBook;
 use App\Domain\Purchases\PurchasePricer;
 use App\Domain\Sales\SalePricer;
 use App\Enums\GstMode;
 use App\Enums\RoleName;
+use App\Models\CashMovement;
+use App\Models\CashSession;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\DrugSchedule;
+use App\Models\ExpenseCategory;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
@@ -27,6 +33,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -85,6 +92,7 @@ class DemoDataSeeder extends Seeder
         $this->generalGoods();
         $this->suppliersAndPurchases();
         $this->customersAndBills();
+        $this->expensesAndCashDays();
 
         Carbon::setTestNow();
         Auth::forgetUser();
@@ -523,6 +531,59 @@ class DemoDataSeeder extends Seeder
         // Ramesh pays Rs 300 of his udhar by UPI.
         app(ReceiveCustomerPayment::class)->handle($cashier, $customers['Ramesh Patil']->refresh(), 30000, 'upi', 'UPI-DEMO-1');
         Auth::setUser($this->owner);
+    }
+
+    /**
+     * A few expenses over the fortnight, yesterday's cash day closed (Rs 50 short) and today's day open, so
+     * the Day Closing and Expenses screens and the two cash reports have something to show.
+     */
+    private function expensesAndCashDays(): void
+    {
+        $storeId = $this->owner->store_id;
+        $base = now()->copy();
+        $head = fn (string $name) => (int) ExpenseCategory::where('store_id', $storeId)->where('name', $name)->value('id');
+        $spend = function (int $daysAgo, string $time, string $headName, float $rupees, string $method, ?string $what = null) use ($base, $head) {
+            Carbon::setTestNow($base->copy()->subDays($daysAgo)->setTimeFromTimeString($time));
+            app(RecordExpense::class)->handle($this->owner, [
+                'expense_category_id' => $head($headName), 'amount_paise' => $this->paise($rupees), 'method' => $method,
+                'expense_date' => now()->toDateString(), 'description' => $what,
+            ]);
+        };
+        $spend(12, '11:00', 'Electricity', 1840.00, 'upi', 'MSEB bill');
+        $spend(9, '17:30', 'Transport', 120.00, 'cash', 'Auto to Kalyan for stock');
+        $spend(6, '10:15', 'Tea & snacks', 60.00, 'cash');
+        $spend(3, '12:40', 'Packaging', 350.00, 'cash', 'Carry bags');
+        $spend(1, '16:00', 'Internet & phone', 599.00, 'upi', 'Jio recharge');
+
+        // Yesterday: opened at 9 with Rs 1,000, closed at 21:00 with the drawer Rs 50 short.
+        $book = app(DayBook::class);
+        $yesterday = CashSession::create([
+            'store_id' => $storeId, 'business_date' => $base->copy()->subDay()->toDateString(), 'status' => CashSession::OPEN,
+            'opened_by' => $this->owner->id, 'opened_at' => $base->copy()->subDay()->setTime(9, 0), 'opening_cash_paise' => 100000,
+        ])->refresh();
+        DB::table('payments')->where('store_id', $storeId)->whereNull('cash_session_id')
+            ->whereDate('created_at', $base->copy()->subDay()->toDateString())
+            ->update(['cash_session_id' => $yesterday->id]);
+        $yesterday->forceFill(['status' => CashSession::CLOSED, 'closed_by' => $this->owner->id, 'closed_at' => $base->copy()->subDay()->setTime(21, 0)]);
+        $figures = $book->figures($yesterday);
+        $yesterday->fill([
+            'expected_cash_paise' => $figures['expected_cash_paise'],
+            'counted_cash_paise' => $figures['expected_cash_paise'] - 5000,
+            'difference_paise' => -5000,
+            'summary' => $figures,
+            'note' => 'Rs 50 short, probably wrong change given',
+        ])->save();
+
+        // Today: opened at 9 with yesterday's counted cash; today's bills were made after that and belong to it.
+        Carbon::setTestNow($base->copy()->setTime(9, 0));
+        $today = CashSession::create([
+            'store_id' => $storeId, 'business_date' => $base->toDateString(), 'status' => CashSession::OPEN,
+            'opened_by' => $this->owner->id, 'opened_at' => now(), 'opening_cash_paise' => $figures['expected_cash_paise'] - 5000,
+        ])->refresh();
+        $book->adoptOrphans($today, $yesterday->closed_at);
+        Carbon::setTestNow($base->copy()->setTime(13, 30));
+        app(MoveCash::class)->handle($this->owner, CashMovement::BANK_DEPOSIT, 50000, 'Deposited at SBI Khadavli');
+        Carbon::setTestNow();
     }
 
     private function paise(float $rupees): int

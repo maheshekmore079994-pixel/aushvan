@@ -3,7 +3,9 @@ import { clsx } from 'clsx';
 import {
     BarChart3,
     Boxes,
+    CalendarCheck,
     CalendarClock,
+    Coins,
     ChevronDown,
     DatabaseBackup,
     HandCoins,
@@ -52,6 +54,7 @@ const NAV: { heading?: string; items: NavItem[] }[] = [
         items: [
             { to: '/sales', label: 'nav.sales', icon: ReceiptText, permission: 'sales.create' },
             { to: '/udhar', label: 'nav.udhar', icon: HandCoins },
+            { to: '/day', label: 'nav.day', icon: CalendarCheck, permission: ['sales.create', 'day.close', 'day.reopen'] },
         ],
     },
     {
@@ -71,7 +74,13 @@ const NAV: { heading?: string; items: NavItem[] }[] = [
             { to: '/suppliers', label: 'nav.suppliers', icon: Truck, permission: ['purchases.manage', 'suppliers.manage'] },
         ],
     },
-    { heading: 'nav.group_reports', items: [{ to: '/reports', label: 'nav.reports', icon: BarChart3, permission: 'reports.view' }] },
+    {
+        heading: 'nav.group_reports',
+        items: [
+            { to: '/reports', label: 'nav.reports', icon: BarChart3, permission: 'reports.view' },
+            { to: '/expenses', label: 'nav.expenses', icon: Coins, permission: 'expenses.manage' },
+        ],
+    },
     {
         heading: 'nav.settings',
         items: [

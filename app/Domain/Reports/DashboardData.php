@@ -7,7 +7,9 @@ use App\Domain\Catalog\ProductPresenter;
 use App\Domain\Catalog\ProductQuery;
 use App\Domain\Shared\ShopClock;
 use App\Enums\Permission;
+use App\Models\CashSession;
 use App\Models\Customer;
+use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Sale;
@@ -42,6 +44,13 @@ final class DashboardData
 
         if ($user->can(Permission::PURCHASES_MANAGE)) {
             $data['supplier_dues'] = $this->supplierDues($storeId, $todayString);
+        }
+        if ($user->can(Permission::EXPENSES_MANAGE) || $user->can(Permission::DAY_CLOSE)) {
+            $open = CashSession::where('store_id', $storeId)->where('status', CashSession::OPEN)->orderByDesc('business_date')->first();
+            $data['day'] = $open ? ['id' => $open->id, 'status' => $open->status, 'business_date' => $open->business_date->toDateString()] : null;
+            $data['expenses_today'] = [
+                'total_paise' => (int) Expense::where('store_id', $storeId)->whereNull('cancelled_at')->whereDate('expense_date', $todayString)->sum('amount_paise'),
+            ];
         }
 
         if ($user->can(Permission::SALES_CREATE)) {

@@ -165,20 +165,20 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 
 | ID | Requirement | Pri |
 |---|---|---|
-| M1 | Entry: category, amount, date, payment method, description | MVP |
-| M2 | Seeded categories (rent, electricity, internet, salary, transport, packaging, maintenance, other); editable | MVP |
-| M3 | Daily, monthly, category-wise reports | MVP |
+| M1 | Entry: category, amount, date, payment method, description — **built 2026-11-26** (D-062) | MVP |
+| M2 | Seeded categories (rent, electricity, internet, salary, transport, packaging, maintenance, other); editable — **built** (11 heads, add / hide) | MVP |
+| M3 | Daily, monthly, category-wise reports — **built** (Expenses screen totals by head for any period; "Expenses" report) | MVP |
 | M4 | Attachment | V1 |
 
 ## N. Cash register / day closing (Phase 7)
 
 | ID | Requirement | Pri |
 |---|---|---|
-| N1 | Open day with opening cash; close day with counted cash and difference | MVP |
-| N2 | Expected cash from cash sales, udhar received, refunds, expenses, supplier payments, cash in/out | MVP |
-| N3 | Non-cash totals shown for comparison with UPI/bank | MVP |
-| N4 | Closed day frozen; reopen by owner with reason | MVP |
-| N5 | Day-closing summary print | MVP |
+| N1 | Open day with opening cash; close day with counted cash and difference — **built 2026-11-26** (D-062) | MVP |
+| N2 | Expected cash from cash sales, udhar received, refunds, expenses, supplier payments, cash in/out — **built** | MVP |
+| N3 | Non-cash totals shown for comparison with UPI/bank — **built** | MVP |
+| N4 | Closed day frozen; reopen by owner with reason — **built** | MVP |
+| N5 | Day-closing summary print — **partly**: the screen prints; no dedicated layout yet (KNOWN_ISSUES Y5) | MVP |
 | N6 | Shift-wise sessions per operator | Later (table supports it) |
 
 ## O. Reports (Phase 7)
