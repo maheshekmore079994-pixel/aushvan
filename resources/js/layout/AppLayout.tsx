@@ -24,6 +24,7 @@ import {
     ShoppingBag,
     ShoppingBasket,
     ShoppingCart,
+    Stethoscope,
     Store,
     Truck,
     Users,
@@ -86,6 +87,7 @@ const NAV: { heading?: string; items: NavItem[] }[] = [
         items: [
             { to: '/settings/shop', label: 'nav.shop', icon: Store },
             { to: '/settings/users', label: 'nav.users', icon: Users, permission: 'users.manage' },
+            { to: '/settings/doctors', label: 'nav.doctors', icon: Stethoscope, permission: ['sales.create', 'medicines.manage', 'prescriptions.view'] },
             { to: '/settings/roles', label: 'nav.roles', icon: ShieldCheck, ownerOnly: true },
             { to: '/settings/backup', label: 'nav.backup', icon: DatabaseBackup, permission: 'backup.manage' },
         ],
@@ -170,7 +172,9 @@ export function AppLayout() {
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
     const [searching, setSearching] = useState(false);
+    // The saved preference follows the user to any device; the browser copy covers the moment before it is known.
     const [collapsed, setCollapsed] = useState(() => {
+        if (typeof user.preferences?.menu_collapsed === 'boolean') return user.preferences.menu_collapsed;
         try {
             return localStorage.getItem(COLLAPSED_KEY) === '1';
         } catch {
@@ -198,8 +202,10 @@ export function AppLayout() {
             try {
                 localStorage.setItem(COLLAPSED_KEY, value ? '0' : '1');
             } catch {
-                // Not remembered; still collapsed for this visit.
+                // Not remembered here; the server copy below still is.
             }
+            // Best effort: a failed save only means the next device starts from the browser copy.
+            void api('/auth/preferences', { method: 'PUT', body: { menu_collapsed: !value } }).catch(() => undefined);
             return !value;
         });
 
@@ -399,6 +405,9 @@ export function AppLayout() {
                         <Outlet />
                     </div>
                 </main>
+                <footer className="mx-auto w-full max-w-[96rem] px-3 pb-24 pt-2 text-center text-xs text-ink-soft sm:px-4 lg:px-5 lg:pb-3 print:hidden">
+                    <span className="font-semibold text-ink">{t('app.name')}</span> · {t('app.tagline')} · {t('app.company')}
+                </footer>
 
                 {/* Phones and small tablets: the places used all day, one thumb away. */}
                 <nav className="pb-safe fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-white lg:hidden print:hidden" aria-label={t('nav.quick_links')}>

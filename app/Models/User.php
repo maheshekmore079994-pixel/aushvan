@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable([
-    'store_id', 'name', 'username', 'mobile', 'email', 'password', 'pin', 'locale',
+    'store_id', 'name', 'username', 'mobile', 'email', 'password', 'pin', 'locale', 'preferences',
     'is_pharmacist', 'pharmacist_reg_no', 'is_active', 'last_login_at',
 ])]
 #[Hidden(['password', 'pin', 'remember_token'])]
@@ -33,6 +33,7 @@ class User extends Authenticatable
             'is_pharmacist' => 'boolean',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'preferences' => 'array',
         ];
     }
 

@@ -31,6 +31,7 @@ Route::prefix('v1')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
         Route::put('auth/locale', [AuthController::class, 'updateLocale']);
+        Route::put('auth/preferences', [AuthController::class, 'updatePreferences']);
 
         Route::get('store', [StoreController::class, 'show']);
         Route::put('store', [StoreController::class, 'update'])
@@ -76,7 +77,7 @@ Route::prefix('v1')->group(function () {
             ->middleware(['can:'.Permission::SALES_CANCEL, 'idempotent:required']);
 
         // Doctors: picked on the prescription step by whoever bills; kept by whoever manages medicines.
-        Route::get('doctors', [DoctorController::class, 'index'])->middleware('can:'.Permission::SALES_CREATE);
+        Route::get('doctors', [DoctorController::class, 'index'])->middleware('can:doctors.view'); // gate: bills, medicines or prescriptions
         Route::middleware('can:'.Permission::MEDICINES_MANAGE)->group(function () {
             Route::post('doctors', [DoctorController::class, 'store'])->middleware('idempotent');
             Route::put('doctors/{doctor}', [DoctorController::class, 'update']);

@@ -215,7 +215,7 @@ function KpiRow({ data }: { data: Dashboard }) {
     const { today, yesterday, month, last_month_to_date: lastMonth } = data.sales;
 
     return (
-        <div className="stagger grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
             <Kpi icon={Wallet} tone="success" label={t('dashboard.sales_today')} value={formatMoney(today.sales_paise)} to="/reports/bills">
                 <span className="flex flex-wrap items-center gap-x-3">
                     {bills(today)}

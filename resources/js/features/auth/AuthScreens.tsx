@@ -3,7 +3,6 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '@/components/Mascot';
 import { Alert, Button, Card, TextField } from '@/components/ui';
-import { LanguageSwitch } from '@/layout/LanguageSwitch';
 import { api, ApiError, NetworkError } from '@/lib/api';
 import i18n from '@/lib/i18n';
 import { useSignedIn, type Profile } from './session';
@@ -50,9 +49,10 @@ function AuthFrame({ title, intro, children }: { title: string; intro?: string; 
                     {intro && <p className="mt-1 text-sm text-ink-soft">{intro}</p>}
                     <div className="mt-5">{children}</div>
                 </Card>
-                <LanguageSwitch />
                 <p className="text-center text-xs text-ink-soft">
                     {t('app.name')} · {t('app.company')} · {t('app.parent_company')}
+                    <br />
+                    {t('app.tagline')}
                 </p>
             </div>
         </main>

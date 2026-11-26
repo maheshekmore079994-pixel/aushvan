@@ -19,9 +19,10 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   `owner`, `pharmacist`, `manager`, `cashier`, password `demo-pass-123`; pharmacist PIN `1234`. 80 products
   with stock, 6 customers, 62 bills over 14 days (10 today: cash, UPI, card, split, udhar, prescription).
 - **Next task (owner instruction of 2026-11-26: finish the remaining modules, then host on the friend's cPanel server and demo):**
-  POS extras (hold / resume, discount limits per role, price override), then the restore screen; then hosting and the demo as soon as the cPanel details arrive. (Phase 6 compliance built 2026-11-26.) (doctor master, H1 register, expiry actions, licence
+  owner review items of 2026-11-27 first: a consistency pass over fonts, spacing and card styles on the newer screens, and a livelier dashboard; then POS extras (hold / resume, discount limits per role, price override), the restore screen, the Android APK wrapper (shared directly, no Play Store) once the site is on https; hosting and the demo as soon as the cPanel details arrive. (doctor master, H1 register, expiry actions, licence
   on bills), POS extras (hold/resume, discount limits), restore screen; then the hosted deployment (subdomain on
   naturepestservices.com, https, cron for backups) and the demo. Desktop: owner test of the zip and the Inno installer still pending.
+- **2026-11-27 (owner review):** branding footer on every screen and the sign-in page; language choice removed from sign-in; "Fully paid" reworded; mascot named Ashu and its origin logged (D-066); menu-collapse preference saved per user (`PUT auth/preferences`); Settings → Doctors screen (list incl. hidden, add, edit); one MySQL-only migration rollback bug fixed (composite index on prescriptions).
 - **2026-11-26 (Phase 6):** doctor master on the prescription step, prescription serial numbers, prescription-sales / H1 register / sales-by-doctor reports, licence-fee reminder, return-to-supplier from Expiry (D-065). Review of the udhar corrections fixed two real issues (a reversed payment now mirrors its cash row out; a relative backup folder resolves from the application folder) and added the overdue-days setting to Shop details.
 - **2026-11-26 (Phase 5 extras + hosting):** opening balances, reversal and adjustment entries, overdue flag (D-063); hosting package and cPanel guide (D-064, `docs/HOSTING_CPANEL.md`), proven by unpacking the zip and running `post-upload.sh` against MariaDB on this PC. Waiting on the owner for the cPanel subdomain, database and access.
 - **2026-11-26 (Phase 7):** day closing (cash day with stamp-and-adopt payments, D-062), cash movements, expenses with heads, two reports, dashboard tile and card. Reviewer: 11 findings (reopen without the shop lock, a payment lost at the closing second, expense refunds counted as udhar in sales-by-day, stale fields after reopen, duplicate heads) — fixed; the tester agent was stopped by the usage limit, so the robustness tests (8) were written by the developer. 15 backend tests, 4 frontend tests.
@@ -33,7 +34,7 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   shop configurable (`DEMO_*` in .env; currently Jay Mahakali Medical and General Stores, Khadavli), first
   Windows package built and proven (KNOWN_ISSUES D1–D6).
 - **MySQL:** the suite now runs on the MariaDB found on this machine (WAMP, port 3307); see KNOWN_ISSUES P1.
-- **Blocked on:** nothing. Awaiting the AUSHVAN logo file and the answers to Q2, Q3, Q5.
+- **Blocked on:** nothing. Awaiting the AUSHVAN logo file, the answers to Q2, Q3, Q5, the cPanel details (subdomain, database, FTP) and the mascot gender (Ashwini / Ashwin, D-066).
 
 ## Open questions for the owner
 

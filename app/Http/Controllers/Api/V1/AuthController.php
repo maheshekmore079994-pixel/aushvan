@@ -110,6 +110,16 @@ class AuthController extends Controller
         return response()->json($this->profile($request->user()));
     }
 
+    /** Screen preferences that follow the user to any device (only known keys are kept). */
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        $data = $request->validate(['menu_collapsed' => ['nullable', 'boolean']]);
+        $user = $request->user();
+        $user->update(['preferences' => array_filter(array_merge($user->preferences ?? [], $data), fn ($v) => $v !== null)]);
+
+        return response()->json($this->profile($user->refresh()));
+    }
+
     /** @return array<string, mixed> */
     private function profile(User $user): array
     {
@@ -118,6 +128,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'username' => $user->username,
             'locale' => $user->locale,
+            'preferences' => (object) ($user->preferences ?? []),
             'is_pharmacist' => $user->is_pharmacist,
             'roles' => $user->getRoleNames()->values(),
             'permissions' => $user->effectivePermissions(),

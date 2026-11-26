@@ -126,17 +126,17 @@ describe('first run and sign in', () => {
         expect(screen.getByLabelText('Password')).toHaveValue('');
     });
 
-    it('switches the sign-in screen to Marathi', async () => {
+    it('shows the sign-in screen without a language choice and with the branding line', async () => {
         mockServer({
             'GET /app/status': () => ({ status: 200, body: { needs_setup: false, languages: ['en', 'mr'] } }),
             'GET /auth/me': () => ({ status: 401, body: {} }),
         });
-        const user = userEvent.setup();
         renderApp();
 
-        await user.click(await screen.findByRole('button', { name: 'मराठी' }));
-
-        expect(screen.getByRole('button', { name: 'लॉगिन करा' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+        // The language is a saved per-user choice and applies after sign-in (D-066); nothing to pick here.
+        expect(screen.queryByRole('button', { name: 'मराठी' })).not.toBeInTheDocument();
+        expect(screen.getAllByText(/Every Store\. Better Managed\./).length).toBeGreaterThan(0); // header line and footer line
     });
 });
 

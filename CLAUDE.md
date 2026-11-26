@@ -147,7 +147,7 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - `app/Http/Controllers/Api/V1/`, `app/Http/Requests/`, `app/Http/Middleware/` (`idempotent`, `active`).
 - `app/Enums/Permission.php` — every permission name; `RoleName.php` — default role permissions.
 - `resources/js/` — `app.tsx` (routes), `features/<module>/`, `components/ui.tsx`, `lib/` (api, money, i18n, screen), `locales/{en,mr,hi}.json`.
-- `resources/js/components/Mascot.tsx` — Sathi, the mascot (moods: hello, happy, empty, sad). `Spinner` in `ui.tsx` draws skeletons (`shape`), `EmptyState` shows the mascot. Motion classes live in `app.css`.
+- `resources/js/components/Mascot.tsx` — Ashu, the mascot (D-066: original SVG, no third-party art) (moods: hello, happy, empty, sad). `Spinner` in `ui.tsx` draws skeletons (`shape`), `EmptyState` shows the mascot. Motion classes live in `app.css`.
 - `resources/js/components/CameraScanner.tsx` (`ScanButton`, `CameraScanner`) and `lib/barcodeReader.ts` — camera barcode reading. Put `ScanButton` beside a box a scanner would type into; return a `ScanResult` from `onCode` to keep scanning, nothing to close after one code.
 - `build/windows/` — Windows desktop package: `make-desktop.ps1` (assembles PHP + app + launcher, zip or Inno installer), `launcher/Launcher.cs` (compile with the C# compiler in `C:\Windows\Microsoft.NET\Framework64\v4.0.30319`), `aushvan.iss`.
 - `resources/js/features/dashboard/charts.tsx` — the only charts; follow the chart rules in `UI_UX_GUIDELINES.md`.

@@ -29,6 +29,7 @@ import { PosPage } from '@/features/sales/PosPage';
 import { SalesHistoryPage } from '@/features/sales/SalesHistoryPage';
 import { CustomerPage, UdharPage } from '@/features/sales/UdharPages';
 import { BackupPage } from '@/features/settings/BackupPage';
+import { DoctorsPage } from '@/features/settings/DoctorsPage';
 import { RolesPage } from '@/features/settings/RolesPage';
 import { ShopSettingsPage } from '@/features/settings/ShopSettingsPage';
 import { UsersPage } from '@/features/settings/UsersPage';
@@ -263,6 +264,14 @@ export function App() {
                     />
                     <Route path="settings/roles" element={me.data.roles.includes('owner') ? <RolesPage /> : <Navigate to="/" replace />} />
                     <Route path="settings/shop" element={<ShopSettingsPage />} />
+                    <Route
+                        path="settings/doctors"
+                        element={
+                            <Guard permission={['sales.create', 'medicines.manage', 'prescriptions.view']}>
+                                <DoctorsPage />
+                            </Guard>
+                        }
+                    />
                     <Route
                         path="settings/backup"
                         element={

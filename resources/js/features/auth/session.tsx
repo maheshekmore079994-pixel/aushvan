@@ -8,6 +8,8 @@ export type Profile = {
     name: string;
     username: string;
     locale: LanguageCode;
+    /** Screen preferences that follow the user to any device. */
+    preferences?: { menu_collapsed?: boolean };
     is_pharmacist: boolean;
     roles: string[];
     permissions: string[];

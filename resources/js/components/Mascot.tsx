@@ -4,7 +4,7 @@ import { useId } from 'react';
 export type MascotMood = 'hello' | 'happy' | 'empty' | 'sad';
 
 /**
- * Sathi ("companion") — the shop's own mascot: a capsule in a shopkeeper's cap.
+ * Ashu (short for Ashwini / Ashwin; owner decision D-066) — the shop's own mascot: a capsule in a shopkeeper's cap.
  * The capsule stands for the medical counter, the cap and apron for the general store.
  * Original artwork, drawn here as SVG so it needs no image file and stays sharp at any size.
  *

@@ -48,7 +48,7 @@ token names (`bg-primary`, `text-ink-soft`), never raw colour classes.
 
 ## Mascot, loading and motion (D-044, D-045)
 
-- **Sathi**, the mascot: `<Mascot mood="hello|happy|empty|sad" />`. Use it where a person would otherwise see a
+- **Ashu**, the mascot (original SVG drawn in the code, D-066): `<Mascot mood="hello|happy|empty|sad" />`. Use it where a person would otherwise see a
   blank or a bare icon — sign-in, start-up, empty lists (`EmptyState` shows it automatically), failures. Never
   inside tables, forms, the sale screen or printed pages, and never as the only sign that something went wrong.
 - **Loading**: `<Spinner label shape="rows|page|form|tiles" />` draws a skeleton of the screen that is coming.

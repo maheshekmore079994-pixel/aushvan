@@ -67,7 +67,8 @@
         "suppliers": "Suppliers",
         "group_purchase": "Purchase",
         "day": "Day Closing",
-        "expenses": "Expenses"
+        "expenses": "Expenses",
+        "doctors": "Doctors"
     },
     "auth": {
         "login_title": "Sign in",
@@ -89,7 +90,7 @@
         "point_bill": "Fast bills for medicines and general goods",
         "point_stock": "Stock, batches and expiry always in view",
         "point_udhar": "Udhar of every customer, to the rupee",
-        "mascot_hello": "Namaste! I am Sathi, your shop helper.",
+        "mascot_hello": "Namaste! I am Ashu, your shop helper.",
         "not_shop_network": "Sign in from the shop PC or from a phone on the shop Wi-Fi."
     },
     "dashboard": {
@@ -583,7 +584,7 @@
         "all_by": "All {{method}}",
         "all_udhar": "All udhar",
         "udhar_amount": "Udhar {{amount}}",
-        "fully_paid": "Fully paid",
+        "fully_paid": "Amounts cover the bill — nothing left as udhar",
         "cash_given": "Cash given by customer",
         "change": "Give back {{amount}}",
         "complete": "Complete sale",
@@ -1304,5 +1305,17 @@
         "cancelled_tag": "cancelled: {{reason}}",
         "new_head": "New head",
         "add_head": "Add"
+    },
+    "doctors": {
+        "title": "Doctors",
+        "intro": "The doctors offered on the prescription step. Their details are copied onto each prescription record as they were that day.",
+        "add": "Add doctor",
+        "search": "Search name, registration no., clinic or phone",
+        "none_yet": "No doctors yet.",
+        "none_help": "Add one here, or tick “Save to the doctor list” on the prescription step while billing.",
+        "reg_no": "Registration no.",
+        "clinic": "Clinic / hospital",
+        "active": "Offered on the prescription step",
+        "active_help": "Untick to hide a doctor from the list; old prescriptions keep their copy."
     }
 }

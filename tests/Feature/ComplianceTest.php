@@ -86,6 +86,23 @@ class ComplianceTest extends TestCase
         $this->putJson("/api/v1/doctors/{$id}", ['name' => 'Hijack'])->assertNotFound();
     }
 
+    public function test_the_doctor_list_screen_shows_hidden_doctors_to_managers_and_preferences_follow_the_user(): void
+    {
+        $this->actingAs($this->pharmacist);
+        $id = $this->postJson('/api/v1/doctors', ['name' => 'Dr. Old Timer'])->assertCreated()->json('id');
+        $this->putJson("/api/v1/doctors/{$id}", ['name' => 'Dr. Old Timer', 'is_active' => false])->assertOk()->assertJsonPath('is_active', false);
+
+        // Hidden from the prescription step, still on the management list; a manager without billing rights may read it.
+        $this->getJson('/api/v1/doctors?search=old')->assertOk()->assertJsonCount(0, 'data');
+        $this->actingAs($this->userWithRole(RoleName::StoreManager));
+        $this->getJson('/api/v1/doctors?all=1')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.is_active', false);
+
+        // Screen preferences are saved on the user and come back with the profile, unknown keys dropped.
+        $this->putJson('/api/v1/auth/preferences', ['menu_collapsed' => true, 'colour' => 'red'])->assertOk()->assertJsonPath('preferences.menu_collapsed', true);
+        $this->assertArrayNotHasKey('colour', $this->getJson('/api/v1/auth/me')->json('preferences'));
+        $this->putJson('/api/v1/auth/preferences', ['menu_collapsed' => 'maybe'])->assertStatus(422);
+    }
+
     public function test_a_picked_doctor_fills_the_prescription_record_which_gets_a_serial_number(): void
     {
         $product = $this->medicine('Taxim-O 200', 'H1');
