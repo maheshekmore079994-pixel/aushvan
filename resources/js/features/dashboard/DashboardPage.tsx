@@ -13,6 +13,7 @@ import {
     ScanBarcode,
     ShoppingCart,
     TrendingUp,
+    Truck,
     Wallet,
     type LucideIcon,
 } from 'lucide-react';
@@ -175,6 +176,17 @@ function KpiRow({ data }: { data: Dashboard }) {
         </Kpi>
     );
     const bills = (totals: SalesTotals) => <span className="text-sm text-ink-soft">{t('dashboard.bills_count', { count: totals.bills })}</span>;
+    const dues = data.supplier_dues && (
+        <Kpi icon={Truck} tone="general" label={t('dashboard.supplier_dues')} value={formatMoney(data.supplier_dues.total_paise)} to="/suppliers">
+            <span className="text-sm text-ink-soft">
+                {data.supplier_dues.overdue_paise > 0
+                    ? t('dashboard.supplier_overdue', { amount: formatMoney(data.supplier_dues.overdue_paise) })
+                    : data.supplier_dues.drafts > 0
+                      ? t('dashboard.purchase_drafts', { count: data.supplier_dues.drafts })
+                      : t('suppliers.suppliers_owed', { count: data.supplier_dues.suppliers })}
+            </span>
+        </Kpi>
+    );
 
     if (!data.sales) {
         return (
@@ -185,6 +197,7 @@ function KpiRow({ data }: { data: Dashboard }) {
                     </Kpi>
                 )}
                 {udhar}
+                {dues}
             </div>
         );
     }
@@ -212,6 +225,7 @@ function KpiRow({ data }: { data: Dashboard }) {
                     {bills(data.mine)}
                 </Kpi>
             )}
+            {dues}
         </div>
     );
 }

@@ -73,6 +73,7 @@ shows the tax summary grouped by rate. The document title (Tax Invoice / Bill of
 Supply / Cash Memo) is chosen automatically from the shop's GST mode and the lines on the bill.
 
 ## S6. Purchase
+*Built 2026-11-26 (D-061). Step 5 (invoice photo) is not built.*
 1. **Purchases → New**. Choose supplier, type supplier invoice number and date. The system warns if that
    supplier invoice number already exists.
 2. Add lines: product, quantity + free quantity, purchase unit, rate, discount, GST, and for batch-tracked
@@ -97,6 +98,7 @@ input credit (unregistered/composition). Free quantity therefore lowers unit cos
 Mistakes are fixed by a reversal entry (permission required, reason required), never by editing.
 
 ## S8. Supplier payment
+*Built 2026-11-26: Suppliers → Pay (on account or against one purchase); the dashboard card shows supplier dues and what is past its date.*
 Confirmed purchase of ₹10,000 with ₹4,000 paid → supplier balance ₹6,000 with due date. **Suppliers → Pay**
 ₹3,000 by UPI → payment (out) + supplier ledger entry; balance ₹3,000. Dashboard "Pending supplier
 payments" reflects it. Cash payments reduce the day's expected cash.
@@ -132,6 +134,7 @@ reason required. Reverses stock, payments and ledger entries with linked reversa
 kept and marked CANCELLED.
 
 ## S11. Purchase return
+*Built 2026-11-26: Purchases → Return to supplier; bought stock goes back only to the supplier it came from, at the purchase-time tax rate.*
 Choose supplier and lot (from sellable or non-sellable bucket), quantity and reason. One transaction: return
 document (debit note number), stock movement (−), supplier ledger reduced (or refund received as payment in).
 Quantity cannot exceed what is in the chosen lot.

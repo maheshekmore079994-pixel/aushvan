@@ -10,9 +10,12 @@ use App\Enums\Permission;
 use App\Models\Customer;
 use App\Models\InventoryMovement;
 use App\Models\Product;
+use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use App\Models\Sale;
 use App\Models\SaleReturn;
 use App\Models\StockBatch;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +46,9 @@ final class ReportRunner
         'slow_moving' => ['group' => 'stock', 'filters' => ['days', 'type']],
         'stock_movements' => ['group' => 'stock', 'filters' => ['period', 'type']],
         'udhar_outstanding' => ['group' => 'udhar', 'filters' => []],
+        'purchases' => ['group' => 'purchases', 'filters' => ['period']],
+        'purchases_by_item' => ['group' => 'purchases', 'filters' => ['period', 'type']],
+        'supplier_dues' => ['group' => 'purchases', 'filters' => []],
     ];
 
     private User $user;
@@ -84,6 +90,9 @@ final class ReportRunner
             'slow_moving' => $this->slowMoving($resolved),
             'stock_movements' => $this->stockMovements($resolved),
             'udhar_outstanding' => $this->udharOutstanding(),
+            'purchases' => $this->purchases($resolved),
+            'purchases_by_item' => $this->purchasesByItem($resolved),
+            'supplier_dues' => $this->supplierDues(),
         };
 
         $truncated = count($rows) > self::MAX_ROWS;
@@ -506,6 +515,99 @@ final class ReportRunner
             self::columns([['customer', 'text'], ['mobile', 'text'], ['village', 'text'], ['balance', 'money'], ['limit', 'money'], ['last_payment', 'date']]),
             $rows,
             ['balance'],
+        ];
+    }
+
+    // ---- Purchases --------------------------------------------------------------------------
+
+    private function purchases(array $f): array
+    {
+        $rows = Purchase::where('store_id', $this->storeId)->where('status', '!=', Purchase::DRAFT)
+            ->whereDate('received_date', '>=', $f['from'])->whereDate('received_date', '<=', $f['to'])
+            ->with(['supplier:id,name', 'user:id,name'])
+            ->orderBy('id')->limit(self::MAX_ROWS + 1)->get()
+            ->map(fn (Purchase $p) => [
+                'purchase_no' => $p->purchase_no,
+                'date' => $p->received_date->toDateString(),
+                'supplier' => $p->supplier->name,
+                'invoice_no' => $p->supplier_invoice_no ?? '',
+                'taxable' => $p->status === Purchase::CANCELLED ? 0 : $p->taxable_paise,
+                'tax' => $p->status === Purchase::CANCELLED ? 0 : $p->cgst_paise + $p->sgst_paise + $p->igst_paise + $p->cess_paise,
+                'total' => $p->status === Purchase::CANCELLED ? 0 : $p->total_paise,
+                'paid' => $p->status === Purchase::CANCELLED ? 0 : $p->paid_paise,
+                'due' => $p->status === Purchase::CANCELLED ? 0 : $p->total_paise - $p->paid_paise,
+                'due_date' => $p->due_date?->toDateString(),
+                'status' => $p->status,
+                'by' => $p->user->name,
+            ])->all();
+
+        return [
+            self::columns([
+                ['purchase_no', 'text'], ['date', 'date'], ['supplier', 'text'], ['invoice_no', 'text'], ['taxable', 'money'], ['tax', 'money'],
+                ['total', 'money'], ['paid', 'money'], ['due', 'money'], ['due_date', 'date'], ['status', 'label', 'purchases.status'], ['by', 'text'],
+            ]),
+            $rows,
+            ['taxable', 'tax', 'total', 'paid', 'due'],
+        ];
+    }
+
+    private function purchasesByItem(array $f): array
+    {
+        $query = PurchaseItem::query()
+            ->join('purchases', 'purchases.id', '=', 'purchase_items.purchase_id')
+            ->join('products', 'products.id', '=', 'purchase_items.product_id')
+            ->where('purchases.store_id', $this->storeId)->where('purchases.status', Purchase::CONFIRMED)
+            ->whereDate('purchases.received_date', '>=', $f['from'])->whereDate('purchases.received_date', '<=', $f['to'])
+            ->when($f['type'] ?? null, fn ($q, $type) => $q->where('products.type', $type))
+            ->selectRaw('purchase_items.product_id, products.name, products.type, SUM(purchase_items.qty_base) as qty_base, SUM(purchase_items.qty_base - purchase_items.free_qty * purchase_items.unit_factor) as billed_base, SUM(purchase_items.taxable_paise) as taxable, SUM(purchase_items.line_total_paise) as total, COUNT(DISTINCT purchases.id) as purchases')
+            ->groupBy('purchase_items.product_id', 'products.name', 'products.type')
+            ->orderByDesc('total')->limit(self::MAX_ROWS + 1);
+        $products = Product::with('units.unit')->whereIn('id', $query->clone()->pluck('purchase_items.product_id'))->get()->keyBy('id');
+
+        $rows = $query->get()->map(function ($row) use ($products) {
+            $product = $products->get((int) $row->product_id);
+            $baseUnit = $product?->baseUnit()->unit->code ?? '';
+
+            return [
+                'product' => $row->name,
+                'type' => $row->type,
+                'qty' => (int) $row->qty_base,
+                'free' => (int) $row->qty_base - (int) $row->billed_base,
+                'unit' => $baseUnit,
+                'purchases' => (int) $row->purchases,
+                'taxable' => (int) $row->taxable,
+                'amount' => (int) $row->total,
+            ];
+        })->all();
+
+        return [
+            self::columns([['product', 'text'], ['type', 'label', 'products.type'], ['qty', 'int'], ['free', 'int'], ['unit', 'label', 'unit'], ['purchases', 'int'], ['taxable', 'money'], ['amount', 'money']]),
+            $rows,
+            ['qty', 'free', 'taxable', 'amount'],
+        ];
+    }
+
+    private function supplierDues(): array
+    {
+        $today = ShopClock::todayString();
+        $oldest = Purchase::where('store_id', $this->storeId)->where('status', Purchase::CONFIRMED)->whereColumn('paid_paise', '<', 'total_paise')
+            ->selectRaw('supplier_id, MIN(due_date) as oldest_due, SUM(total_paise - paid_paise) as open_amount')
+            ->groupBy('supplier_id')->get()->keyBy('supplier_id');
+        $rows = Supplier::where('store_id', $this->storeId)->where('balance_paise', '!=', 0)
+            ->orderByDesc('balance_paise')->limit(self::MAX_ROWS + 1)->get()
+            ->map(fn (Supplier $s) => [
+                'supplier' => $s->name,
+                'mobile' => $s->mobile ?? '',
+                'balance' => $s->balance_paise,
+                'overdue' => ($oldest[$s->id]->oldest_due ?? null) !== null && $oldest[$s->id]->oldest_due < $today ? (int) $oldest[$s->id]->open_amount : 0,
+                'due_date' => $oldest[$s->id]->oldest_due ?? null,
+                'last_payment' => $s->last_payment_at?->timezone(config('shop.timezone'))->toDateString(),
+            ])->all();
+
+        return [
+            self::columns([['supplier', 'text'], ['mobile', 'text'], ['balance', 'money'], ['overdue', 'money'], ['due_date', 'date'], ['last_payment', 'date']]),
+            $rows,
+            ['balance', 'overdue'],
         ];
     }
 }

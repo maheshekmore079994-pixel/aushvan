@@ -145,8 +145,8 @@ Windows shows an "unknown publisher" warning for the unsigned program — "More 
 
 ## 9. What NOT to promise in a demo
 
-Purchases/supplier entry, expenses, day closing, the Windows installer and the mobile app are **not
-built yet**. Backup is built (section 10); restore is a command, not a screen. The software has not run on a real printer or on a real phone with real packs. GST reports are
+Expenses, day closing, the Windows installer and the mobile app are **not built yet**. Purchases and
+suppliers are built (Purchase → Purchases / Suppliers; a purchase is a draft until "Confirm & add to stock"). Backup is built (section 10); restore is a command, not a screen. The software has not run on a real printer or on a real phone with real packs. GST reports are
 for information; GST filing and e-invoicing are not implemented. See `docs/IMPLEMENTATION_PLAN.md`.
 
 ## 10. Backup and restore

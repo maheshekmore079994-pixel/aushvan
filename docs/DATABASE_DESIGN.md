@@ -167,8 +167,15 @@ started_by, posted_by, posted_at.
 credit_limit_paise, balance_paise (cached; positive = customer owes shop), last_payment_at, notes,
 is_active, version, soft delete.
 
-**suppliers** — ulid, store_id, name, contact_person, mobile, address, gstin, drug_licence_no, type,
-payment_terms_days, balance_paise (cached; positive = shop owes supplier), notes, is_active, version, soft delete.
+**suppliers** — ulid, store_id, name, contact_person, mobile, address, gstin, drug_licence_no, kind
+(distributor | wholesaler | manufacturer | other), payment_terms_days, balance_paise (cached; positive = shop owes
+supplier), last_payment_at, notes, search_text, is_active, soft delete. Built 2026-11-26 (no `version` column).
+
+**supplier_contacts** (built 2026-11-26, D-054) — store_id, supplier_id, name, role (mr | sales | delivery | accounts |
+owner | other), company, mobile, visit_day (0–6), schemes, notes, is_active.
+
+**supplier_ledger_entries** — as customer_ledger_entries, with `credit_paise` = the shop owes more (purchase) and
+`debit_paise` = owes less (payment, return, reversal). Index (supplier_id, id).
 
 **customer_ledger_entries** — ulid, store_id, customer_id, entry_date, type (`opening` | `sale` | `payment` |
 `return` | `adjustment` | `reversal`), debit_paise, credit_paise, balance_after_paise, source_type,
@@ -292,3 +299,8 @@ not modelled beyond `store_id`.
 | `product_price_history` | `old_value`, `new_value`, `source_type/id` | `old_paise`, `new_paise`, `source` (text) | Values are always paise |
 | `settings` | Negative-stock rule | Not implemented; negative stock is always refused | D-019 |
 | `stock_takes` | Present | Not created | Physical count screen is V1 |
+| `purchases` | `received_date`, `due_date`, totals, `paid_paise` | As designed plus `invoice_total_paise` (what the paper says), `inter_state`, `confirmed_by/at`; `purchase_no` is null while a draft; index (store_id, purchase_no) | Built 2026-11-26 (D-061) |
+| `purchase_items` | `batch_id` set on confirm | Plus `product_name`, `hsn_code`, `unit_code`, `free_qty`, `qty_base` (billed + free), `cost_rate` (priced at draft save), `selling_price_paise` nullable; lines of a draft are replaced on every save | Same |
+| `purchase_returns` | `purchase_id` nullable | No `purchase_id`: a debit note names batches, each batch knows its purchase line; `refund_method` added; unique (store_id, return_no) | Same |
+| `purchase_return_items` | `rate`, amount fields | `cost_rate`, tax rate and split, `line_total_paise`, `product_name`, `batch_no`, `bucket` | Same |
+| `stock_batches` | `supplier_id`, `purchase_item_id` | Added 2026-11-26 (nullable; null = opening stock) | Same |

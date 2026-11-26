@@ -5,12 +5,15 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\PurchaseController;
+use App\Http\Controllers\Api\V1\PurchaseReturnController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SaleController;
 use App\Http\Controllers\Api\V1\SaleReturnController;
 use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\StoreController;
+use App\Http\Controllers\Api\V1\SupplierController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -78,6 +81,36 @@ Route::prefix('v1')->group(function () {
         });
         Route::post('customers/{customer}/payments', [CustomerController::class, 'receivePayment'])
             ->middleware(['can:'.Permission::CREDIT_RECEIVE, 'idempotent:required']);
+
+        // Suppliers, their MR contacts and what the shop owes them. Reading needs either purchase or supplier rights.
+        Route::middleware('can:suppliers.view')->group(function () { // gate: purchases.manage or suppliers.manage
+            Route::get('suppliers', [SupplierController::class, 'index']);
+            Route::get('suppliers/visits', [SupplierController::class, 'visits']);
+            Route::get('suppliers/{supplier}', [SupplierController::class, 'show']);
+        });
+        Route::middleware('can:'.Permission::SUPPLIERS_MANAGE)->group(function () {
+            Route::post('suppliers', [SupplierController::class, 'store'])->middleware('idempotent');
+            Route::put('suppliers/{supplier}', [SupplierController::class, 'update']);
+            Route::post('suppliers/{supplier}/contacts', [SupplierController::class, 'storeContact'])->middleware('idempotent');
+            Route::put('suppliers/{supplier}/contacts/{contact}', [SupplierController::class, 'updateContact']);
+            Route::delete('suppliers/{supplier}/contacts/{contact}', [SupplierController::class, 'removeContact']);
+        });
+
+        // Purchases: drafts are free to edit; confirming, paying, cancelling and returning are repeat-safe.
+        Route::middleware('can:'.Permission::PURCHASES_MANAGE)->group(function () {
+            Route::post('suppliers/{supplier}/payments', [SupplierController::class, 'pay'])->middleware('idempotent:required');
+            Route::get('purchases', [PurchaseController::class, 'index']);
+            Route::post('purchases/preview', [PurchaseController::class, 'preview']);
+            Route::post('purchases', [PurchaseController::class, 'store'])->middleware('idempotent');
+            Route::get('purchases/{purchase}', [PurchaseController::class, 'show']);
+            Route::put('purchases/{purchase}', [PurchaseController::class, 'update']);
+            Route::delete('purchases/{purchase}', [PurchaseController::class, 'destroy']);
+            Route::post('purchases/{purchase}/confirm', [PurchaseController::class, 'confirm'])->middleware('idempotent:required');
+            Route::post('purchases/{purchase}/cancel', [PurchaseController::class, 'cancel'])->middleware('idempotent:required');
+            Route::get('purchase-returns/lots', [PurchaseReturnController::class, 'lots']);
+            Route::post('purchase-returns', [PurchaseReturnController::class, 'store'])->middleware('idempotent:required');
+            Route::get('purchase-returns/{purchaseReturn}', [PurchaseReturnController::class, 'show']);
+        });
 
         // Home screen and reports
         Route::get('dashboard', [ReportController::class, 'dashboard']);

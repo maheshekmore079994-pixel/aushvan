@@ -19,9 +19,11 @@ import {
     ScanBarcode,
     Search,
     ShieldCheck,
+    ShoppingBag,
     ShoppingBasket,
     ShoppingCart,
     Store,
+    Truck,
     Users,
     WifiOff,
     X,
@@ -37,7 +39,7 @@ import type { LanguageCode } from '@/lib/i18n';
 import { CommandPalette } from './CommandPalette';
 import { LanguageSwitch } from './LanguageSwitch';
 
-type NavItem = { to: string; label: string; icon: LucideIcon; permission?: string; ownerOnly?: boolean };
+type NavItem = { to: string; label: string; icon: LucideIcon; permission?: string | string[]; ownerOnly?: boolean };
 
 /**
  * Only screens that exist are listed. Each development phase adds its items
@@ -62,6 +64,13 @@ const NAV: { heading?: string; items: NavItem[] }[] = [
             { to: '/labels', label: 'nav.labels', icon: ScanBarcode, permission: 'products.manage' },
         ],
     },
+    {
+        heading: 'nav.group_purchase',
+        items: [
+            { to: '/purchases', label: 'nav.purchases', icon: ShoppingBag, permission: 'purchases.manage' },
+            { to: '/suppliers', label: 'nav.suppliers', icon: Truck, permission: ['purchases.manage', 'suppliers.manage'] },
+        ],
+    },
     { heading: 'nav.group_reports', items: [{ to: '/reports', label: 'nav.reports', icon: BarChart3, permission: 'reports.view' }] },
     {
         heading: 'nav.settings',
@@ -78,6 +87,7 @@ const NAV: { heading?: string; items: NavItem[] }[] = [
 const QUICK: NavItem[] = [
     { to: '/sale', label: 'nav.new_sale', icon: ShoppingCart, permission: 'sales.create' },
     { to: '/products/new', label: 'products.add', icon: PackagePlus, permission: 'products.manage' },
+    { to: '/purchases/new', label: 'purchases.new', icon: ShoppingBag, permission: 'purchases.manage' },
     { to: '/udhar', label: 'udhar.receive', icon: HandCoins, permission: 'credit.receive' },
     { to: '/expiry', label: 'nav.expiry', icon: CalendarClock },
     { to: '/labels', label: 'nav.labels', icon: ScanBarcode, permission: 'products.manage' },
@@ -184,7 +194,7 @@ export function AppLayout() {
             return !value;
         });
 
-    const allowed = (item: NavItem) => (!item.permission || can(item.permission)) && (!item.ownerOnly || user.roles.includes('owner'));
+    const allowed = (item: NavItem) => (!item.permission || [item.permission].flat().some(can)) && (!item.ownerOnly || user.roles.includes('owner'));
     const canSell = can('sales.create');
     const quick = QUICK.filter(allowed);
     const roleNames = user.roles.map((role) => t(`users.role.${role}`, { defaultValue: role })).join(', ');

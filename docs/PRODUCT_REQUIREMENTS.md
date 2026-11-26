@@ -85,13 +85,13 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 
 | ID | Requirement | Pri |
 |---|---|---|
-| F1 | Purchase entry: supplier, invoice number/date, lines with quantity, free quantity, unit, rate, discount, GST, batch, expiry, MRP; other charges; round-off; notes; due date | MVP |
-| F2 | Draft → Confirm; stock, lots, price history and supplier ledger created only on confirm | MVP |
-| F3 | Payment at purchase (full/partial) and later payments; supplier ledger | MVP |
-| F4 | Duplicate supplier-invoice warning; total check against paper invoice | MVP |
-| F5 | Quick-add product from the purchase screen | MVP |
-| F6 | Purchase return (debit note) from sellable or not-for-sale stock | MVP |
-| F7 | Cancel a confirmed purchase only if none of its stock has moved; otherwise use return | MVP |
+| F1 | Purchase entry: supplier, invoice number/date, lines with quantity, free quantity, unit, rate, discount, GST, batch, expiry, MRP; other charges; round-off; notes; due date — **built 2026-11-26** (D-061) | MVP |
+| F2 | Draft → Confirm; stock, lots, price history and supplier ledger created only on confirm — **built** | MVP |
+| F3 | Payment at purchase (full/partial) and later payments; supplier ledger — **built** | MVP |
+| F4 | Duplicate supplier-invoice warning; total check against paper invoice — **built** (the total check warns, it does not block: KNOWN_ISSUES Q2) | MVP |
+| F5 | Quick-add product from the purchase screen — **built** (opens the product form and returns to the purchase with the new product as a line) | MVP |
+| F6 | Purchase return (debit note) from sellable or not-for-sale stock — **built** | MVP |
+| F7 | Cancel a confirmed purchase only if none of its stock has moved; otherwise use return — **built** | MVP |
 | F8 | Invoice photo/scan attachment | V1 |
 | F9 | Low-stock purchase suggestion list | V1 |
 
@@ -147,8 +147,8 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 
 | ID | Requirement | Pri |
 |---|---|---|
-| K1 | Name, contact person, mobile, address, GSTIN, drug licence number, type, payment terms, opening balance | MVP |
-| K2 | Supplier ledger, purchase history, payment history, outstanding and due-date report | MVP |
+| K1 | Name, contact person, mobile, address, GSTIN, drug licence number, type, payment terms, opening balance — **built 2026-11-26**, plus MR / sales contacts with visit day and schemes (D-054) | MVP |
+| K2 | Supplier ledger, purchase history, payment history, outstanding and due-date report — **built** (supplier page, "Supplier dues" report, dashboard card) | MVP |
 
 ## L. Returns and exchanges (Phases 3–4)
 

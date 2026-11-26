@@ -135,7 +135,8 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - `app/Domain/Inventory/StockLedger.php` — the only code that may change stock. Never write `qty_sellable` / `qty_unsellable` any other way.
 - `app/Domain/Sales/SalePricer.php` — prices a cart (batches, tax, round-off). Used by both the preview and `CompleteSale`; never duplicate its maths in the frontend.
 - `app/Domain/Sales/ReturnPricer.php` — prices a return from the bill's own line amounts (never today's prices); `ReturnSale` and `CancelSale` in `app/Actions/` own the transactions. Sales, bill lines, returns and return lines refuse updates at the model level.
-- `app/Domain/Parties/CustomerLedger.php` — the only code that may change a customer's `balance_paise`.
+- `app/Domain/Parties/CustomerLedger.php` — the only code that may change a customer's `balance_paise`; `SupplierLedger.php` likewise for a supplier (credit = the shop owes more).
+- `app/Domain/Purchases/PurchasePricer.php` — prices supplier-invoice lines (free quantity shares the cost, GST into cost for non-regular shops); `ConfirmPurchase`, `PaySupplier`, `CancelPurchase`, `ReturnToSupplier` in `app/Actions/` own the transactions. Drafts are edited through `PurchaseController`; confirmed purchases and debit notes refuse updates at the model level.
 - `app/Domain/Backup/` — BackupArchive (zip: database copy/dump + uploads + manifest), BackupVerifier (a backup is "verified" only after re-reading it), BackupRestorer, BackupFolder (USB folder, due/auto status); `app/Actions/MakeBackup.php` owns one attempt; commands `backup:run`, `backup:restore`.
 - `app/Domain/Reports/` — ReportRunner (every report as one table; add a report here and in `features/reports/api.ts`), ReportExporter (CSV / Excel / PDF), ReportLabels (export words from the locale JSON files), DashboardData.
 - `app/Domain/Catalog/` — ProductQuery (stock subqueries that run on MySQL and SQLite), ProductPresenter, Barcode.
@@ -160,6 +161,7 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - A new permission needs a label under `roles.permission.<name with _ for .>` in all three languages; a new report needs `reports.name`, `reports.about` and `reports.col` entries. Tests check both.
 - Shell heredocs and inline `node -e` break on quotes and backslashes (PHP namespaces were mangled twice). Write a script file with the editor tool, then run it. Prefix Git Bash commands that pass URL paths with `MSYS_NO_PATHCONV=1`.
 - Screenshots of the running app: `node <scratchpad>/shots.mjs` drives headless Chrome (see KNOWN_ISSUES P2). Look at the screen after changing layout.
+  Headless Chrome must get an **absolute** `--user-data-dir` (a relative one makes it start without listening on the debugging port, "browser did not start").
 - A report column the user may not see must be absent from the rows too (`ReportRunner::run` strips them); never hide data only in the headings or only on the screen.
 - Counting failed attempts (PIN, login) must happen outside the database transaction that fails, or the count is rolled back with it (the cache is in the database).
 - After signing out set the "nobody signed in" state before clearing cached data; clearing first detaches the screen.

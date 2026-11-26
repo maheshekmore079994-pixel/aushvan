@@ -182,6 +182,17 @@ the demo script's "Enter twice" step.
 | D5 | ~~The package is about 200 MB (PHP runtime 30 MB, vendor 150 MB with mPDF fonts).~~ Closed 2026-11-26: the package ships only the three font families the PDF reports use (D-060): 131 MB unpacked, 50 MB zip. What is left is the PHP runtime (about 55 MB, 30 MB of it the ICU data file) and vendor code. Consequence everywhere (not only the desktop build): a PDF report prints text in a script other than Latin or Devanagari (Kannada, Arabic, Chinese, emoji) as boxes; it no longer crashes (`ReportPdfFontsTest`). CSV and Excel exports carry every script. | A Kannada or Urdu product name shows as boxes in a PDF report. | Add that script's font to `ReportExporter::PDF_FONTS` and to the build script's keep pattern when a shop needs it. |
 | D6 | The packaged application has no code signing certificate. | Windows SmartScreen shows "unknown publisher" the first time. | Accept for the pilot; a certificate later (see OFFLINE_WINDOWS_STRATEGY). |
 
+## Purchases and suppliers (2026-11-26)
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| Q1 | The purchase screen offers the first 25 suppliers in a dropdown; there is no supplier search on that screen. | A shop with more suppliers cannot pick the 26th from the purchase screen (it can start the purchase from the supplier's own page). | A searchable supplier picker when a shop reports more than 25. |
+| Q2 | The paper invoice total typed on the purchase screen is compared and shown (green/orange), not enforced: a purchase can be confirmed while it differs. | A typing mistake in a line is caught only if the operator reads the warning. | Owner decision: block confirm on a mismatch, or keep the warning (D-061). |
+| Q3 | No barcode scanning or camera on the purchase screen; lines are added by name search. Invoice photo attachment (F8) and the low-stock purchase suggestion list (F9) are not built. | Slower entry of long invoices. | F8/F9 after the pilot; a scan box is a small addition. |
+| Q4 | A purchase return from a composition or unregistered shop is valued at the batch cost (which already holds the GST paid) with no separate tax line; a regular shop's debit note shows GST at the purchase-time rate. Whether the supplier's credit note must match this exactly is a CA question. | The debit note amount may differ from the supplier's credit note by the GST treatment. | Confirm with the CA (SECURITY/KNOWN_ISSUES CA list). |
+| Q5 | Batches bought before Phase 4 (opening stock) carry no supplier, so they can be returned against any supplier and the "purchases by item" report does not include them. | Historic stock is outside the supplier reports. | Expected; nothing to do. |
+| Q6 | The MRP printed on a newly bought pack becomes the product's MRP (D-061). Older batches keep their own MRP and sell at it. A wrong MRP typed on a purchase changes what the sale screen shows for new batches until corrected on the product. | A typo spreads to the product; cancelling the purchase puts it back. | Keep; the product screen shows the price history. |
+
 ## Returns and cancellation (2026-11-19)
 
 | # | Issue | Impact | Action |

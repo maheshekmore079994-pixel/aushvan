@@ -5,9 +5,13 @@ namespace Database\Seeders;
 use App\Actions\AddOpeningStock;
 use App\Actions\AdjustStock;
 use App\Actions\CompleteSale;
+use App\Actions\ConfirmPurchase;
+use App\Actions\PaySupplier;
 use App\Actions\ReceiveCustomerPayment;
+use App\Actions\ReturnToSupplier;
 use App\Actions\SaveProduct;
 use App\Actions\SetUpShop;
+use App\Domain\Purchases\PurchasePricer;
 use App\Domain\Sales\SalePricer;
 use App\Enums\GstMode;
 use App\Enums\RoleName;
@@ -15,6 +19,8 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\DrugSchedule;
 use App\Models\Product;
+use App\Models\Purchase;
+use App\Models\Supplier;
 use App\Models\TaxRate;
 use App\Models\Unit;
 use App\Models\User;
@@ -77,6 +83,7 @@ class DemoDataSeeder extends Seeder
 
         $this->medicines();
         $this->generalGoods();
+        $this->suppliersAndPurchases();
         $this->customersAndBills();
 
         Carbon::setTestNow();
@@ -328,6 +335,102 @@ class DemoDataSeeder extends Seeder
     }
 
     /** A morning of trade: cash, UPI, split, udhar and prescription bills, and one udhar repayment. */
+    /**
+     * Three suppliers with their MRs, two confirmed purchases (one part paid, one unpaid and due soon),
+     * one draft waiting to be finished, a payment and a debit note — enough for every purchase screen and report.
+     */
+    private function suppliersAndPurchases(): void
+    {
+        $storeId = $this->owner->store_id;
+        $suppliers = [];
+        foreach ([
+            ['Mahalaxmi Pharma Distributors', 'distributor', 'Rahul Deshmukh', '9822000001', '27ABCDE1234F1Z5', 'MH-KAL-20B-1123', 15],
+            ['Shree Sai Agencies', 'wholesaler', 'Prakash Shah', '9822000002', '27PQRSX5678G1Z2', null, 7],
+            ['Kale General Suppliers', 'distributor', 'Nitin Kale', '9822000003', null, null, 0],
+        ] as [$name, $kind, $person, $mobile, $gstin, $licence, $terms]) {
+            $suppliers[$name] = Supplier::create([
+                'ulid' => (string) Str::ulid(), 'store_id' => $storeId, 'name' => $name, 'kind' => $kind, 'contact_person' => $person,
+                'mobile' => $mobile, 'gstin' => $gstin, 'drug_licence_no' => $licence, 'payment_terms_days' => $terms,
+                'search_text' => Product::buildSearchText($name, $mobile, $person, $gstin),
+            ])->refresh();
+        }
+        foreach ([
+            ['Mahalaxmi Pharma Distributors', 'Amol Pawar', 'mr', 'Cipla', '9822000009', 2, '10+1 on Ciplox, 5% on Montair LC'],
+            ['Mahalaxmi Pharma Distributors', 'Sagar Jadhav', 'mr', 'Sun Pharma', '9822000010', 4, 'Scheme on Mox 500 till month end'],
+            ['Shree Sai Agencies', 'Prakash Shah', 'owner', null, '9822000002', 1, null],
+            ['Kale General Suppliers', 'Nitin Kale', 'delivery', null, '9822000003', null, null],
+        ] as [$supplierName, $person, $role, $company, $mobile, $day, $schemes]) {
+            $suppliers[$supplierName]->contacts()->create(['store_id' => $storeId, 'name' => $person, 'role' => $role, 'company' => $company, 'mobile' => $mobile, 'visit_day' => $day, 'schemes' => $schemes]);
+        }
+
+        $base = now()->copy(); // the real clock: setTestNow below would otherwise shift each step from the last
+        $pricer = app(PurchasePricer::class);
+        $store = $this->owner->store;
+        $product = fn (string $name) => Product::where('store_id', $storeId)->where('name', $name)->firstOrFail();
+        $month = fn (int $monthsAhead) => now()->addMonthsNoOverflow($monthsAhead)->format('Y-m');
+        $draft = function (Supplier $supplier, string $invoiceNo, array $lines) use ($pricer, $store, $storeId): Purchase {
+            $priced = $pricer->price($store, $supplier, array_map(fn (array $l) => $l + [
+                'expiry_date' => isset($l['expiry_month']) ? Carbon::createFromFormat('!Y-m', $l['expiry_month'])->endOfMonth()->toDateString() : null,
+            ], $lines));
+            if ($priced['errors'] !== []) {
+                throw new RuntimeException('Demo purchase line refused: '.json_encode($priced['errors']));
+            }
+            $purchase = Purchase::create($priced['totals'] + [
+                'ulid' => (string) Str::ulid(), 'store_id' => $storeId, 'supplier_id' => $supplier->id, 'supplier_invoice_no' => $invoiceNo,
+                'invoice_date' => now()->toDateString(), 'received_date' => now()->toDateString(), 'inter_state' => $priced['inter_state'],
+                'due_date' => $supplier->payment_terms_days > 0 ? now()->addDays($supplier->payment_terms_days)->toDateString() : null,
+                'user_id' => $this->owner->id, 'status' => Purchase::DRAFT,
+            ]);
+            foreach ($priced['lines'] as $number => $line) {
+                $purchase->items()->create(PurchasePricer::storable($line) + ['line_no' => $number + 1]);
+            }
+
+            return $purchase;
+        };
+        $medicineLine = fn (string $name, int $strips, int $free, float $rate, int $monthsAhead, ?float $mrp = null) => [
+            'product_id' => $product($name)->id, 'unit' => 'pack', 'qty' => $strips, 'free_qty' => $free, 'rate_paise' => $this->paise($rate),
+            'discount_percent' => 0, 'batch_no' => 'P'.mt_rand(1000, 9999), 'expiry_month' => $month($monthsAhead), 'mrp_paise' => $mrp === null ? null : $this->paise($mrp),
+        ];
+        $generalLine = fn (string $name, int $qty, float $rate, float $discount = 0) => [
+            'product_id' => $product($name)->id, 'unit' => 'pack', 'qty' => $qty, 'free_qty' => 0, 'rate_paise' => $this->paise($rate), 'discount_percent' => $discount, 'expiry_month' => $month(12), // packed food carries a best-before
+        ];
+
+        // Ten days ago: a medicine invoice, Rs 2,000 paid by UPI on delivery, the rest due in 15 days.
+        Carbon::setTestNow($base->copy()->subDays(10)->setTime(11, 0));
+        $first = $draft($suppliers['Mahalaxmi Pharma Distributors'], 'MPD/2627/4418', [
+            $medicineLine('Crocin 500 Tablet', 20, 2, 22.50, 20),
+            $medicineLine('Ciplox 500 Tablet', 10, 1, 34.00, 18),
+            $medicineLine('Pan 40 Tablet', 10, 0, 128.00, 22),
+            $medicineLine('Montair LC Tablet', 5, 0, 232.00, 16),
+        ]);
+        app(ConfirmPurchase::class)->handle($this->owner, $first, ['amount_paise' => 200000, 'method' => 'upi', 'reference_no' => 'UPI4418']);
+
+        // Five days ago: kirana goods, nothing paid yet (due in 7 days).
+        Carbon::setTestNow($base->copy()->subDays(5)->setTime(16, 30));
+        $second = $draft($suppliers['Shree Sai Agencies'], 'SSA-1187', [
+            $generalLine('Tata Salt 1kg', 24, 24.00),
+            $generalLine('Parle-G Biscuit 100g', 12, 72.00, 2),
+            $generalLine('Surf Excel Easy Wash 1kg', 6, 118.00),
+        ]);
+        app(ConfirmPurchase::class)->handle($this->owner, $second);
+
+        // Three days ago: a strip of Ciplox damaged in the box goes back (debit note), and Mahalaxmi is paid another Rs 1,000 in cash.
+        Carbon::setTestNow($base->copy()->subDays(3)->setTime(12, 0));
+        $ciploxBatch = $first->items()->where('product_name', 'Ciplox 500 Tablet')->firstOrFail()->batch_id;
+        app(ReturnToSupplier::class)->handle($this->owner, [
+            'supplier_id' => $suppliers['Mahalaxmi Pharma Distributors']->id, 'reason' => 'One strip crushed in the carton', 'settlement' => 'reduce_balance',
+            'lines' => [['batch_id' => $ciploxBatch, 'bucket' => 'sellable', 'qty_base' => 10]],
+        ]);
+        app(PaySupplier::class)->handle($this->owner, $suppliers['Mahalaxmi Pharma Distributors'], 100000, 'cash', null, null, $first->fresh());
+
+        // Today: an invoice typed half-way and saved as a draft.
+        Carbon::setTestNow();
+        $draft($suppliers['Kale General Suppliers'], 'PSS/0921', [
+            $generalLine('Colgate Strong Teeth 100g', 6, 142.00),
+            $generalLine('Lifebuoy Soap 100g', 12, 78.00),
+        ]);
+    }
+
     private function customersAndBills(): void
     {
         $storeId = $this->owner->store_id;

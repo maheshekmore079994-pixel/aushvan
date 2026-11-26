@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
 
         // The Owner role passes every permission check.
         Gate::before(fn (User $user) => $user->isOwner() ? true : null);
+
+        // Reading suppliers is open to whoever enters purchases or keeps the supplier list.
+        Gate::define('suppliers.view', fn (User $user) => $user->can(Permission::PURCHASES_MANAGE) || $user->can(Permission::SUPPLIERS_MANAGE));
 
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(300)
             ->by($request->user()?->id ?: $request->ip()));

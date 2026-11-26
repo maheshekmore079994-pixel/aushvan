@@ -14,6 +14,12 @@ import { LabelsPage } from '@/features/products/LabelsPage';
 import { ProductDetailPage } from '@/features/products/ProductDetailPage';
 import { ProductFormPage } from '@/features/products/ProductFormPage';
 import { ProductsPage } from '@/features/products/ProductsPage';
+import { PurchaseFormPage } from '@/features/purchases/PurchaseFormPage';
+import { PurchasePage } from '@/features/purchases/PurchasePage';
+import { DebitNotePage, PurchaseReturnPage } from '@/features/purchases/PurchaseReturnPage';
+import { PurchasesPage } from '@/features/purchases/PurchasesPage';
+import { SupplierPage } from '@/features/purchases/SupplierPage';
+import { SuppliersPage } from '@/features/purchases/SuppliersPage';
 import { ReportPage, ReportsPage } from '@/features/reports/ReportsPages';
 import { BillPage } from '@/features/sales/BillPage';
 import { CreditNotePage } from '@/features/sales/CreditNotePage';
@@ -112,6 +118,70 @@ export function App() {
                     />
                     <Route path="udhar" element={<UdharPage />} />
                     <Route path="customers/:id" element={<CustomerPage />} />
+                    <Route
+                        path="suppliers"
+                        element={
+                            <Guard permission={['purchases.manage', 'suppliers.manage']}>
+                                <SuppliersPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="suppliers/:id"
+                        element={
+                            <Guard permission={['purchases.manage', 'suppliers.manage']}>
+                                <SupplierPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="purchases"
+                        element={
+                            <Guard permission="purchases.manage">
+                                <PurchasesPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="purchases/new"
+                        element={
+                            <Guard permission="purchases.manage">
+                                <PurchaseFormPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="purchases/:id"
+                        element={
+                            <Guard permission="purchases.manage">
+                                <PurchasePage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="purchases/:id/edit"
+                        element={
+                            <Guard permission="purchases.manage">
+                                <PurchaseFormPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="purchase-returns/new"
+                        element={
+                            <Guard permission="purchases.manage">
+                                <PurchaseReturnPage />
+                            </Guard>
+                        }
+                    />
+                    <Route
+                        path="purchase-returns/:id"
+                        element={
+                            <Guard permission="purchases.manage">
+                                <DebitNotePage />
+                            </Guard>
+                        }
+                    />
                     <Route path="products" element={<ProductsPage title={t('nav.products')} />} />
                     <Route
                         path="products/new"

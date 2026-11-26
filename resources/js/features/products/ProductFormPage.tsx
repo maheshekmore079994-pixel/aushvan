@@ -257,6 +257,11 @@ function ProductForm({ options, product, initial }: { options: CatalogOptions; p
             toast('success', t('common.saved'));
             // A product made from an unknown scan goes straight on to its opening stock, then back to the sale.
             const then = search.get('then');
+            // A product made from the purchase screen gets its stock from that purchase, not from an opening-stock entry.
+            if (!product && then?.startsWith('/purchases')) {
+                navigate(`${then}${then.includes('?') ? '&' : '?'}product=${saved.id}`);
+                return;
+            }
             navigate(product ? `/products/${saved.id}` : `/products/${saved.id}?stock=1${then ? `&then=${encodeURIComponent(then)}` : ''}`);
         } catch (e) {
             if (e instanceof ApiError && e.code === 'possible_duplicate') {

@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  */
 #[Fillable([
     'store_id', 'product_id', 'batch_no', 'mfg_date', 'expiry_date', 'mrp_paise', 'selling_price_paise',
-    'cost_rate', 'received_date',
+    'cost_rate', 'received_date', 'supplier_id', 'purchase_item_id',
 ])]
 class StockBatch extends Model
 {
@@ -31,7 +31,13 @@ class StockBatch extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withTrashed();
+    }
+
+    /** The purchase line this batch came from; null for opening stock. */
+    public function purchaseItem(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseItem::class, 'purchase_item_id');
     }
 
     /** Stock may be sold up to and including its expiry date. */

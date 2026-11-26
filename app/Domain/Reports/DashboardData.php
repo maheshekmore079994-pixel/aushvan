@@ -9,8 +9,10 @@ use App\Domain\Shared\ShopClock;
 use App\Enums\Permission;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\StockBatch;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +39,10 @@ final class DashboardData
             'low_stock' => $this->lowStock($storeId),
             'expiring' => $this->expiring($storeId),
         ];
+
+        if ($user->can(Permission::PURCHASES_MANAGE)) {
+            $data['supplier_dues'] = $this->supplierDues($storeId, $todayString);
+        }
 
         if ($user->can(Permission::SALES_CREATE)) {
             $data['recent_bills'] = Sale::where('store_id', $storeId)->with('customer:id,name')
@@ -180,6 +186,21 @@ final class DashboardData
             'top' => (clone $owing)->orderByDesc('balance_paise')->limit(5)->get(['id', 'name', 'village', 'balance_paise'])
                 ->map(fn (Customer $c) => ['id' => $c->id, 'name' => $c->name, 'village' => $c->village, 'balance_paise' => $c->balance_paise])
                 ->all(),
+        ];
+    }
+
+    /** What the shop owes its suppliers, how much of it is past its due date, and drafts waiting to be confirmed. */
+    private function supplierDues(int $storeId, string $today): array
+    {
+        $owed = Supplier::where('store_id', $storeId)->where('balance_paise', '>', 0);
+
+        return [
+            'total_paise' => (int) (clone $owed)->sum('balance_paise'),
+            'suppliers' => (clone $owed)->count(),
+            'overdue_paise' => (int) Purchase::where('store_id', $storeId)->where('status', Purchase::CONFIRMED)
+                ->whereColumn('paid_paise', '<', 'total_paise')->whereNotNull('due_date')->where('due_date', '<', $today)
+                ->selectRaw('COALESCE(SUM(total_paise - paid_paise), 0) as due')->value('due'),
+            'drafts' => Purchase::where('store_id', $storeId)->where('status', Purchase::DRAFT)->count(),
         ];
     }
 
