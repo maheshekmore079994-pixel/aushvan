@@ -30,7 +30,7 @@ return new class extends Migration
         Schema::table('prescriptions', function (Blueprint $table) {
             $table->string('serial_no', 16)->nullable()->after('id');
             $table->foreignId('doctor_id')->nullable()->after('customer_id')->constrained()->restrictOnDelete();
-            $table->index(['store_id', 'serial_no']);
+            $table->index('serial_no'); // not with store_id: MySQL would lend that index to the store_id foreign key and refuse to drop it
         });
 
         // One reversal per ledger entry, guaranteed by the database as well as by the code.
@@ -52,7 +52,7 @@ return new class extends Migration
         });
         Schema::table('prescriptions', function (Blueprint $table) {
             $table->dropConstrainedForeignId('doctor_id');
-            $table->dropIndex(['store_id', 'serial_no']);
+            $table->dropIndex(['serial_no']);
             $table->dropColumn('serial_no');
         });
         Schema::dropIfExists('doctors');
