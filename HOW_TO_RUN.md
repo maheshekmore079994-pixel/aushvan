@@ -135,8 +135,9 @@ batch and expiry) — and you are back on the sale screen, where the same scan n
 powershell -ExecutionPolicy Bypass -File build\windows\make-desktop.ps1 -Version 0.9.0
 ```
 
-makes `build\windows\dist\AUSHVAN\` and `build\windows\out\AUSHVAN-0.9.0-windows.zip` (about 200 MB; with
-Inno Setup installed it makes `AUSHVAN-Setup-0.9.0.exe` instead). On the shop PC: unzip, run `AUSHVAN.exe`.
+makes `build\windows\dist\AUSHVAN\` (about 130 MB) and `build\windows\out\AUSHVAN-0.9.0-windows.zip` (about 50 MB;
+with Inno Setup installed it makes `AUSHVAN-Setup-0.9.0.exe` instead). The package carries no data from this
+PC (no database, backups or uploads) and only the three PDF fonts the reports use. On the shop PC: unzip, run `AUSHVAN.exe`.
 The first start takes about a minute (it creates the database), then the app opens in a window; the small
 AUSHVAN window stays in the tray and "Stop and close" stops it. Data: `%LOCALAPPDATA%\AUSHVAN\data\aushvan.sqlite`;
 log: `%LOCALAPPDATA%\AUSHVAN\launcher.log`. The first visit shows the shop setup screen (no demo data).

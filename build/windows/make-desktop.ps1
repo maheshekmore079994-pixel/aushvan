@@ -74,7 +74,10 @@ Remove-Item (Join-Path $stage 'database\*.sqlite*') -Force -ErrorAction Silently
 Remove-Item (Join-Path $stage 'bootstrap\cache\*.php') -Force -ErrorAction SilentlyContinue
 Get-ChildItem (Join-Path $stage 'storage\framework\cache\data'), (Join-Path $stage 'storage\framework\sessions'), (Join-Path $stage 'storage\framework\views'), (Join-Path $stage 'storage\logs') -ErrorAction SilentlyContinue |
     Where-Object { $_.Name -ne '.gitignore' } | Remove-Item -Recurse -Force
-Remove-Item (Join-Path $stage 'storage\app\exports'), (Join-Path $stage 'storage\app\mpdf') -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item (Join-Path $stage 'storage\app\exports'), (Join-Path $stage 'storage\app\mpdf'), (Join-Path $stage 'storage\app\backups') -Recurse -Force -ErrorAction SilentlyContinue
+# Uploaded files of the development shop stay here too.
+Get-ChildItem (Join-Path $stage 'storage\app\private'), (Join-Path $stage 'storage\app\public') -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -ne '.gitignore' } | Remove-Item -Recurse -Force
 
 Push-Location $stage
 try {
@@ -93,6 +96,11 @@ foreach ($item in @('app', 'bootstrap', 'config', 'database', 'public', 'resourc
 }
 Remove-Item (Join-Path $dist 'app\resources\js'), (Join-Path $dist 'app\resources\css') -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item (Join-Path $dist 'app\database\*.sqlite*') -Force -ErrorAction SilentlyContinue
+# mPDF ships 87 MB of fonts for every script; the PDF exports are limited to FreeSans, FreeSerif (Devanagari)
+# and the DejaVu Sans families (ReportExporter::PDF_FONTS tells mPDF no other font exists), so the rest
+# stays out of the package. Keep this pattern and PDF_FONTS in step; tests/Feature/ReportPdfFontsTest checks it.
+Get-ChildItem (Join-Path $dist 'app\vendor\mpdf\mpdf\ttfonts') -File |
+    Where-Object { $_.Name -notmatch '^(FreeSans|FreeSerif|DejaVuSans)' -and $_.Name -notin @('GNUFreeFontinfo.txt', 'DejaVuinfo.txt') } | Remove-Item -Force
 @(
     'APP_NAME="AUSHVAN"',
     'APP_ENV=production',

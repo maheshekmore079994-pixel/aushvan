@@ -18,10 +18,12 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
 - **Demo shop:** `php artisan migrate:fresh` then `php artisan db:seed --class=DemoDataSeeder`. Logins
   `owner`, `pharmacist`, `manager`, `cashier`, password `demo-pass-123`; pharmacist PIN `1234`. 80 products
   with stock, 6 customers, 62 bills over 14 days (10 today: cash, UPI, card, split, udhar, prescription).
-- **Next task (order changed by the owner, D-055):** finish the Windows desktop build — rebuild the zip with the
-  backup feature, owner test on a clean PC (including Backup to a USB stick), Inno installer, slimmer package — then
+- **Next task (order changed by the owner, D-055):** finish the Windows desktop build — the zip is rebuilt with the
+  backup feature (`build\windows\out\AUSHVAN-0.9.0-windows.zip`, 50 MB); now the owner test on a clean PC (including
+  Backup to a USB stick) and the Inno installer (needs `winget install JRSoftware.InnoSetup`, then re-run the script) — then
   the mobile app wrapper once hosting exists. After that Phase 4 (suppliers and purchases, with MR contacts) and day closing,
   both required before a shop runs on AUSHVAN daily.
+- **2026-11-26 (later):** desktop zip rebuilt with Backup and proven with the bundled PHP (migrate, demo seed, Marathi PDF, verified backup, restore) and by starting the launcher over the 22 Nov install; package slimmed to 131 MB / 50 MB zip (D-060); build script no longer packs development backups or uploads.
 - **2026-11-26:** backup to a USB stick / second disk with verification, automatic daily copy, restore command (D-059); desktop zip must be rebuilt to include it. Review + tester round: 16 findings, all confirmed ones fixed (folder check on real paths before anything is created, restore source protected from retention, one backup at a time, failed attempts leave no file, volatile tables left out, uploads checksummed, auto-backup back-off, counts checked inside the restore transaction, folder errors as translated codes); 39 backup tests (`BackupTest`, `BackupRobustnessTest`).
 - **2026-11-22 (later):** phone sign-in from any shop-network address (D-058), after the Wi-Fi changed.
 - **2026-11-22:** scan-to-add products (D-056), phone fixes (request keys on plain http, visible errors), demo
@@ -210,7 +212,8 @@ Exit: a user can set up the shop, log in, switch language, manage users; tests g
 - [x] Package script `build/windows/make-desktop.ps1`: trimmed PHP runtime + production app + launcher → folder, zip, or Inno installer (D-057)
 - [x] Launcher `AUSHVAN.exe`: first-run key and migrations, data in %LOCALAPPDATA%\AUSHVAN\data, server on 127.0.0.1, app window, tray, log, PHP dies with the launcher
 - [x] Backup to USB (D3) — Settings → Backup, D-059; the launcher keeps local copies in `%LOCALAPPDATA%\AUSHVAN\backups`
-- [ ] Owner runs the zip on a clean Windows PC (D1); Inno installer (D2); package size (D5)
+- [x] Package size (D5): 131 MB / 50 MB zip after dropping the unused mPDF fonts (D-060); the zip carries no development data
+- [ ] Owner runs the zip on a clean Windows PC (D1); Inno installer (D2)
 
 - [ ] Proof of concept: NativePHP vs local-server install on the target PC; measure and decide
 - [ ] SQLite production configuration; local backup to USB + off-site upload

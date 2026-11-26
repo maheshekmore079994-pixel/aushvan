@@ -4,6 +4,7 @@ namespace App\Domain\Reports;
 
 use App\Models\Store;
 use Illuminate\Support\Carbon;
+use Mpdf\Config\FontVariables;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use Mpdf\Output\Destination;
@@ -171,6 +172,33 @@ final class ReportExporter
         $writer->close();
     }
 
+    /** The font families the PDF export may use; the desktop package ships only these files (build/windows/make-desktop.ps1). */
+    public const PDF_FONTS = ['freesans', 'freeserif', 'dejavusans', 'dejavusanscondensed', 'dejavusansmono'];
+
+    /**
+     * mPDF font settings. Marathi and Hindi need their letters joined properly: autoScriptToLang/autoLangToFont
+     * switch to FreeSerif for Devanagari. mPDF is told that only PDF_FONTS exist, so text in a script with no
+     * shipped font (Kannada, Arabic, Chinese…) prints as boxes instead of crashing on a missing font file.
+     *
+     * @return array<string, mixed>
+     */
+    public static function pdfConfig(): array
+    {
+        $defaults = (new FontVariables)->getDefaults();
+
+        return [
+            'default_font' => 'freesans',
+            'autoScriptToLang' => true,
+            'autoLangToFont' => true,
+            'fontdata' => array_intersect_key($defaults['fontdata'], array_flip(self::PDF_FONTS)),
+            'sans_fonts' => ['freesans', 'dejavusanscondensed', 'dejavusans', 'sans', 'sans-serif'],
+            'serif_fonts' => ['freeserif', 'serif'],
+            'mono_fonts' => ['dejavusansmono', 'mono', 'monospace'],
+            'backupSubsFont' => ['dejavusanscondensed', 'freesans', 'freeserif'],
+            'backupSIPFont' => null,
+        ];
+    }
+
     private function pdf(string $path, array $report, Store $store, ReportLabels $labels, array $header, array $rows, ?array $totals): void
     {
         $e = fn ($text) => htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
@@ -207,15 +235,11 @@ final class ReportExporter
         if (! is_dir($temp)) {
             mkdir($temp, 0775, true);
         }
-        $mpdf = new Mpdf([
+        $mpdf = new Mpdf(self::pdfConfig() + [
             'tempDir' => $temp,
             'format' => 'A4',
             'orientation' => count($header) > 7 ? 'L' : 'P',
             'margin_left' => 10, 'margin_right' => 10, 'margin_top' => 10, 'margin_bottom' => 14,
-            'default_font' => 'freesans',
-            // Marathi and Hindi need their letters joined properly; these switch the right font on per script.
-            'autoScriptToLang' => true,
-            'autoLangToFont' => true,
         ]);
         $mpdf->SetTitle($heading[0]);
         $mpdf->SetCreator(config('app.name'));
