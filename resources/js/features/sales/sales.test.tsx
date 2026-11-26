@@ -89,6 +89,7 @@ function base(profile = me()): Record<string, Handler> {
         'GET /auth/me': ok(profile),
         'GET /pos/search': (call) => ok({ data: call.path.includes('quick=1') ? [] : [crocin], matched_barcode: call.path.includes('q=890'), barcode_unit: 'pack' })(call),
         'POST /sales/preview': (call) => ok(previewFor(call))(call),
+        'GET /doctors': ok({ data: [] }),
     };
 }
 
@@ -244,6 +245,34 @@ describe('new sale', () => {
         expect(sale.body.pharmacist).toEqual({ user_id: 2, pin: '0000' });
         expect(await within(dialog).findByText(/pharmacist must approve/)).toBeInTheDocument(); // wrong PIN refused by the server
         expect(screen.getByDisplayValue('1')).toBeInTheDocument(); // the cart is untouched
+    });
+
+    it('offers the shop’s doctors on the prescription step and sends the picked one', async () => {
+        const calls = mockServer({
+            ...base(me({ is_pharmacist: true })),
+            'POST /sales/preview': (call) => ok(previewFor(call, { prescription: true, pharmacist: true }))(call),
+            'GET /doctors': ok({ data: [{ id: 3, name: 'Dr. Meena Joshi', reg_no: 'MMC-777', clinic: 'Joshi Nursing Home', address: 'Kalyan West', phone: null, is_active: true }] }),
+            'POST /sales': () => ({ status: 201, body: bill({ prescription: { patient_name: 'Ramesh', prescriber_name: 'Dr. Meena Joshi', prescriber_address: 'Joshi Nursing Home, Kalyan West' } }) }),
+            'GET /sales/55': ok(bill()),
+        });
+        const user = userEvent.setup();
+        renderApp('/sale');
+
+        await user.type(await screen.findByRole('searchbox'), 'croc{Enter}');
+        await waitFor(() => expect(screen.getAllByText('₹30.00').length).toBeGreaterThan(0));
+        await user.click(screen.getByRole('button', { name: /^Pay/ }));
+        const dialog = screen.getByRole('dialog');
+
+        await user.type(within(dialog).getByLabelText(/Doctor’s name/), 'jo');
+        await user.click(await within(dialog).findByRole('option', { name: /Dr. Meena Joshi/ }));
+        expect(within(dialog).getByLabelText(/Doctor’s name/)).toHaveValue('Dr. Meena Joshi');
+        expect(within(dialog).getByLabelText(/Doctor’s address/)).toHaveValue('Joshi Nursing Home, Kalyan West');
+        expect(within(dialog).queryByText(/to the doctor list for next time/)).not.toBeInTheDocument(); // picked, not new
+        await user.type(within(dialog).getByLabelText(/Patient’s name/), 'Ramesh');
+        await user.click(within(dialog).getByRole('button', { name: 'Complete sale' }));
+
+        await waitFor(() => expect(calls.some((c) => c.path === '/sales')).toBe(true));
+        expect(calls.find((c) => c.path === '/sales')!.body.prescription).toMatchObject({ doctor_id: 3, prescriber_name: 'Dr. Meena Joshi', patient_name: 'Ramesh' });
     });
 
     it('shows when there is not enough stock and blocks payment', async () => {

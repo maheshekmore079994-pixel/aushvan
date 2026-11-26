@@ -21,6 +21,7 @@ class Store extends Model
         'licence_retention_due' => null,
         'bill_footer' => null,
         'counter_prefix' => '',
+        'udhar_overdue_days' => 30,
     ];
 
     protected function casts(): array

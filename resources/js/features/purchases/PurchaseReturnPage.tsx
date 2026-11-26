@@ -25,7 +25,7 @@ export function PurchaseReturnPage() {
     const [params] = useSearchParams();
     const idempotencyKey = useRef(newIdempotencyKey());
     const [supplierId, setSupplierId] = useState<number | null>(params.get('supplier') ? Number(params.get('supplier')) : null);
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState(params.get('search') ?? ''); // the Expiry screen sends the batch here
     const [expiredOnly, setExpiredOnly] = useState(false);
     const [lines, setLines] = useState<ChosenLine[]>([]);
     const [reason, setReason] = useState('');

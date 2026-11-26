@@ -119,6 +119,7 @@ class SaleController extends Controller
             'payments.*.amount_paise' => ['required', 'integer', 'min:1', 'max:1000000000'],
             'payments.*.reference_no' => ['nullable', 'string', 'max:50'],
             'prescription' => ['nullable', 'array'],
+            'prescription.doctor_id' => ['nullable', 'integer'],
             'prescription.prescriber_name' => ['nullable', 'string', 'max:100'],
             'prescription.prescriber_address' => ['nullable', 'string', 'max:300'],
             'prescription.prescriber_reg_no' => ['nullable', 'string', 'max:50'],
@@ -266,7 +267,7 @@ class SaleController extends Controller
                 'id' => $sale->customer->id, 'name' => $sale->customer->name, 'mobile' => $sale->customer->mobile,
                 'village' => $sale->customer->village, 'balance_paise' => $sale->customer->balance_paise,
             ] : null,
-            'prescription' => $sale->prescription?->only(['patient_name', 'patient_address', 'prescriber_name', 'prescriber_address', 'prescriber_reg_no']),
+            'prescription' => $sale->prescription?->only(['serial_no', 'patient_name', 'patient_address', 'prescriber_name', 'prescriber_address', 'prescriber_reg_no']),
             'shop' => [
                 'name' => $store->name, 'address' => $store->address, 'village' => $store->village, 'taluka' => $store->taluka,
                 'district' => $store->district, 'pincode' => $store->pincode, 'phone' => $store->phone,

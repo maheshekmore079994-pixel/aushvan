@@ -383,6 +383,20 @@ function Lists({ data }: { data: Dashboard }) {
  * Warns when the last verified backup is too old, and — when a backup folder is set and no copy went there
  * recently — takes one by itself, once per visit, telling the owner what happened.
  */
+/** The drug licence retention fee date is near or past: a line the owner cannot miss, until the date is updated. */
+function LicenceReminder({ licence }: { licence: NonNullable<Dashboard['licence']> }) {
+    const { t, i18n } = useTranslation();
+    const date = new Date(`${licence.due}T00:00:00`).toLocaleDateString(dateLocale(i18n.language), { dateStyle: 'medium' });
+    return (
+        <Alert tone={licence.days < 0 ? 'danger' : 'warning'}>
+            {licence.days < 0 ? t('dashboard.licence_overdue', { date }) : t('dashboard.licence_due', { date, count: licence.days })}{' '}
+            <Link to="/settings/shop" className="font-semibold underline">
+                {t('nav.shop')}
+            </Link>
+        </Alert>
+    );
+}
+
 function BackupReminder({ backup }: { backup: NonNullable<Dashboard['backup']> }) {
     const { t } = useTranslation();
     const toast = useToast();
@@ -525,6 +539,7 @@ export function DashboardPage() {
             </section>
 
             {dashboard.data?.backup && <BackupReminder backup={dashboard.data.backup} />}
+            {dashboard.data?.licence && <LicenceReminder licence={dashboard.data.licence} />}
 
             {dashboard.isPending && <Spinner label={t('common.loading')} shape="tiles" />}
             {dashboard.data && <KpiRow data={dashboard.data} />}

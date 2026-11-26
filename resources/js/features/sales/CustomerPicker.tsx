@@ -66,6 +66,7 @@ export function CustomerForm({ initialName = '', customer, showLimit = false, on
     const [mobile, setMobile] = useState(customer?.mobile ?? (startsWithDigit ? initialName : ''));
     const [village, setVillage] = useState(customer?.village ?? '');
     const [limit, setLimit] = useState(customer && customer.credit_limit_paise > 0 ? String(customer.credit_limit_paise / 100) : '');
+    const [opening, setOpening] = useState('');
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<unknown>(null);
 
@@ -77,6 +78,8 @@ export function CustomerForm({ initialName = '', customer, showLimit = false, on
             mobile: mobile.trim() || null,
             village: village.trim() || null,
             credit_limit_paise: /^\d+$/.test(limit) ? Number(limit) * 100 : 0,
+            // Udhar carried over from the paper book, only when the customer is first added.
+            ...(customer ? {} : { opening_balance_paise: /^\d+(\.\d{1,2})?$/.test(opening.trim()) ? Math.round(Number(opening) * 100) : 0 }),
             confirm_duplicate: confirmDuplicate,
         };
         try {
@@ -130,6 +133,17 @@ export function CustomerForm({ initialName = '', customer, showLimit = false, on
                     onChange={(v) => setLimit(v.replace(/\D/g, ''))}
                     help={t('customers.limit_help')}
                     inputMode="numeric"
+                    optional={t('common.optional')}
+                />
+            )}
+            {!customer && (
+                <TextField
+                    label={t('customers.opening')}
+                    value={opening}
+                    onChange={setOpening}
+                    error={field('opening_balance_paise')}
+                    help={t('customers.opening_help')}
+                    inputMode="decimal"
                     optional={t('common.optional')}
                 />
             )}

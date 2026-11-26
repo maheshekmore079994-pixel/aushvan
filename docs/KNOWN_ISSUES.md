@@ -182,6 +182,23 @@ the demo script's "Enter twice" step.
 | D5 | ~~The package is about 200 MB (PHP runtime 30 MB, vendor 150 MB with mPDF fonts).~~ Closed 2026-11-26: the package ships only the three font families the PDF reports use (D-060): 131 MB unpacked, 50 MB zip. What is left is the PHP runtime (about 55 MB, 30 MB of it the ICU data file) and vendor code. Consequence everywhere (not only the desktop build): a PDF report prints text in a script other than Latin or Devanagari (Kannada, Arabic, Chinese, emoji) as boxes; it no longer crashes (`ReportPdfFontsTest`). CSV and Excel exports carry every script. | A Kannada or Urdu product name shows as boxes in a PDF report. | Add that script's font to `ReportExporter::PDF_FONTS` and to the build script's keep pattern when a shop needs it. |
 | D6 | The packaged application has no code signing certificate. | Windows SmartScreen shows "unknown publisher" the first time. | Accept for the pilot; a certificate later (see OFFLINE_WINDOWS_STRATEGY). |
 
+## Medical compliance (2026-11-26)
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| W1 | The registers are printed reports over the bill lines; whether they replace the bound H1 register and the prescription register is for the Drug Inspector to confirm (see the CONFIRM list). The Schedule X statement (P5) is not built. | Until confirmed, keep the paper registers too. | Owner: ask the Drug Inspector; then build the X statement if Schedule X stock is ever held. |
+| W2 | A prescription photo (P2, optional) cannot be attached. | The paper prescription is the record. | V1, with uploads. |
+| W3 | The "same composition" list is a name-based search, not a verified composition list. | Informational only; nothing is suggested at the counter. | Needs verified composition data (MEDICAL_DOMAIN_GUIDE §6). |
+| W4 | Doctor search on the prescription step starts after two letters and shows 15 names; there is no doctor management screen (doctors are added from the prescription step and edited through the API). | Fine for one shop's few doctors. | A small Doctors screen under Settings when asked. |
+
+## Udhar corrections (2026-11-26)
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| Z1 | Customers cannot be imported from a CSV yet (I5); each is added on the screen, with an opening balance. | A shop with hundreds of udhar customers types them one by one. | Import with a dry run when a shop asks. |
+| Z2 | The statement prints from the browser; there is no WhatsApp share text (J6) and no payment receipt print (J7). | Receipts are the printed statement. | V1. |
+| Z3 | "Days since last payment" counts from the day the customer was added when nothing was paid yet, not from the oldest unpaid bill. | A long-standing customer who recently got udhar is flagged overdue sooner than an aged-bill rule would. | Age by the oldest open bill when the udhar screen is reworked. |
+
 ## Day closing and expenses (2026-11-26)
 
 | # | Issue | Impact | Action |

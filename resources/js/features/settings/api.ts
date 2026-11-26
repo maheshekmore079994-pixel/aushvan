@@ -20,6 +20,7 @@ export type ShopDetails = {
         drug_licence_21: string | null;
         drug_licence_20f: string | null;
         licence_retention_due: string | null;
+        udhar_overdue_days?: number | string | null;
         bill_footer: string | null;
         counter_prefix: string | null;
     };

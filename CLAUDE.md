@@ -47,6 +47,7 @@ its own test file) as background agents. Fix every confirmed finding and give it
 | `docs/TECHNICAL_ARCHITECTURE.md` | Structure, libraries, API conventions, money/quantity handling |
 | `docs/UI_UX_GUIDELINES.md` | Any screen or component |
 | `docs/OFFLINE_WINDOWS_STRATEGY.md` | Deployment, offline, desktop packaging, sync |
+| `docs/HOSTING_CPANEL.md` | Putting the application on a cPanel / shared-hosting account |
 | `docs/SECURITY_AND_BACKUP.md` | Auth, permissions, uploads, backups |
 | `docs/IMPLEMENTATION_PLAN.md` | Every session |
 | `docs/DECISION_LOG.md` | Before changing an earlier decision |

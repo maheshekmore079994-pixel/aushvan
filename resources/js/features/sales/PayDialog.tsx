@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Button, Modal, SelectField, TextField } from '@/components/ui';
+import { Alert, Button, CheckField, Modal, SelectField, TextField } from '@/components/ui';
 import { useSession } from '@/features/auth/session';
-import { api, ApiError, NetworkError } from '@/lib/api';
+import { api, ApiError, NetworkError, newIdempotencyKey } from '@/lib/api';
 import { formatMoney, parseRupees } from '@/lib/money';
-import { cartPayload, PAYMENT_METHODS, usePharmacists, type Bill, type CartCustomer, type CartLine, type PaymentMethod, type Preview } from './api';
+import { cartPayload, PAYMENT_METHODS, useDoctors, usePharmacists, type Bill, type CartCustomer, type CartLine, type PaymentMethod, type Preview } from './api';
 
 type Props = {
     open: boolean;
@@ -44,6 +44,12 @@ function PayForm({ cartId, lines, preview, customer, onChooseCustomer, onClose, 
     const [amounts, setAmounts] = useState<Record<PaymentMethod, string>>({ cash: rupees(total), upi: '', card: '', bank: '' });
     const [given, setGiven] = useState('');
     const [rx, setRx] = useState({ prescriber_name: '', prescriber_address: '', patient_name: customer?.name ?? '', patient_address: '' });
+    // The prescription step picks a doctor from the shop's list when one matches what is typed; otherwise the typed
+    // name is used as is, and may be saved as a new doctor for next time.
+    const [doctorId, setDoctorId] = useState<number | null>(null);
+    const [saveDoctor, setSaveDoctor] = useState(false);
+    const [pickingDoctor, setPickingDoctor] = useState(false);
+    const doctors = useDoctors(rx.prescriber_name, preview.requires.prescription && doctorId === null && pickingDoctor);
     const [pharmacistId, setPharmacistId] = useState('');
     const [pin, setPin] = useState('');
     const [overLimit, setOverLimit] = useState(false);
@@ -73,6 +79,17 @@ function PayForm({ cartId, lines, preview, customer, onChooseCustomer, onClose, 
         setBusy(true);
         setError(null);
         try {
+            let chosenDoctor = doctorId;
+            if (preview.requires.prescription && chosenDoctor === null && saveDoctor && can('medicines.manage')) {
+                // Saved first, so the prescription record points at the new doctor; a failure here stops the bill cleanly.
+                const created = await api<{ id: number }>('/doctors', {
+                    method: 'POST',
+                    idempotencyKey: newIdempotencyKey(),
+                    body: { name: rx.prescriber_name.trim(), address: rx.prescriber_address.trim() || null },
+                });
+                chosenDoctor = created.id;
+                setDoctorId(created.id);
+            }
             const bill = await api<Bill>('/sales', {
                 method: 'POST',
                 body: {
@@ -80,7 +97,7 @@ function PayForm({ cartId, lines, preview, customer, onChooseCustomer, onClose, 
                     lines: cartPayload(lines),
                     customer_id: customer?.id ?? null,
                     payments: parsed.filter((p) => (p.paise ?? 0) > 0).map((p) => ({ method: p.method, amount_paise: p.paise })),
-                    prescription: preview.requires.prescription ? rx : null,
+                    prescription: preview.requires.prescription ? { ...rx, doctor_id: chosenDoctor } : null,
                     pharmacist: needsPin ? { user_id: Number(pharmacistId), pin } : null,
                     override_credit_limit: overLimit,
                 },
@@ -112,11 +129,53 @@ function PayForm({ cartId, lines, preview, customer, onChooseCustomer, onClose, 
                 <fieldset className="rounded-md border-2 border-danger/40 p-3">
                     <legend className="px-2 font-semibold text-danger-dark">{t('pos.rx_title')}</legend>
                     <div className="grid gap-3 sm:grid-cols-2">
-                        <TextField label={t('pos.rx_doctor')} value={rx.prescriber_name} onChange={(v) => setRx({ ...rx, prescriber_name: v })} autoFocus required />
+                        <div className="relative">
+                            <TextField
+                                label={t('pos.rx_doctor')}
+                                value={rx.prescriber_name}
+                                onChange={(v) => {
+                                    setRx({ ...rx, prescriber_name: v });
+                                    setDoctorId(null);
+                                    setPickingDoctor(true);
+                                }}
+                                onBlur={() => setTimeout(() => setPickingDoctor(false), 150)}
+                                help={doctorId !== null ? t('pos.rx_doctor_picked') : undefined}
+                                autoFocus
+                                required
+                            />
+                            {pickingDoctor && doctorId === null && (doctors.data?.length ?? 0) > 0 && (
+                                <ul className="absolute inset-x-0 top-full z-20 mt-1 max-h-48 overflow-y-auto rounded-lg border border-line bg-white shadow-lg" role="listbox">
+                                    {doctors.data!.map((d) => (
+                                        <li key={d.id}>
+                                            <button
+                                                type="button"
+                                                role="option"
+                                                aria-selected={false}
+                                                onMouseDown={(e) => e.preventDefault()}
+                                                onClick={() => {
+                                                    setDoctorId(d.id);
+                                                    setRx({ ...rx, prescriber_name: d.name, prescriber_address: [d.clinic, d.address].filter(Boolean).join(', ') });
+                                                    setPickingDoctor(false);
+                                                }}
+                                                className="flex w-full flex-col px-3 py-2 text-left hover:bg-surface"
+                                            >
+                                                <span className="font-medium">{d.name}</span>
+                                                <span className="text-sm text-ink-soft">{[d.reg_no, d.clinic].filter(Boolean).join(' · ')}</span>
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                         <TextField label={t('pos.rx_patient')} value={rx.patient_name} onChange={(v) => setRx({ ...rx, patient_name: v })} required />
                         <TextField label={t('pos.rx_doctor_address')} value={rx.prescriber_address} onChange={(v) => setRx({ ...rx, prescriber_address: v })} optional={t('common.optional')} />
                         <TextField label={t('pos.rx_patient_address')} value={rx.patient_address} onChange={(v) => setRx({ ...rx, patient_address: v })} optional={t('common.optional')} />
                     </div>
+                    {doctorId === null && rx.prescriber_name.trim().length >= 3 && can('medicines.manage') && (
+                        <div className="mt-2">
+                            <CheckField label={t('pos.rx_save_doctor', { name: rx.prescriber_name.trim() })} checked={saveDoctor} onChange={setSaveDoctor} />
+                        </div>
+                    )}
                 </fieldset>
             )}
 

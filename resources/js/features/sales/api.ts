@@ -178,6 +178,10 @@ export type Customer = {
     credit_limit_paise: number;
     balance_paise: number;
     last_payment_at: string | null;
+    /** Days since the last payment (or since the customer was added when nothing was paid yet). */
+    days_since_payment: number;
+    /** Owing and nothing paid for longer than the shop's limit. */
+    overdue: boolean;
 };
 
 export type LedgerEntry = {
@@ -189,6 +193,8 @@ export type LedgerEntry = {
     balance_after_paise: number;
     note: string | null;
     sale_id: number | null;
+    /** May be undone from the statement (a payment on account, an opening, an adjustment not undone yet). */
+    reversible?: boolean;
 };
 
 type Paged<T> = { data: T[]; meta: { total: number; page: number; last_page: number } };
@@ -254,6 +260,17 @@ export const useCustomers = (search: string, owing: boolean) =>
             api<Paged<Customer> & { total_owed_paise: number; customers_owing: number }>(
                 `/customers?search=${encodeURIComponent(search)}${owing ? '&owing=1' : ''}`,
             ),
+        placeholderData: keepPreviousData,
+    });
+
+export type Doctor = { id: number; name: string; reg_no: string | null; clinic: string | null; address: string | null; phone: string | null; is_active: boolean };
+
+/** Doctors matching what is typed on the prescription step. */
+export const useDoctors = (search: string, enabled: boolean) =>
+    useQuery({
+        queryKey: ['doctors', search],
+        queryFn: () => api<{ data: Doctor[] }>(`/doctors?search=${encodeURIComponent(search)}`).then((r) => r.data),
+        enabled: enabled && search.trim().length >= 2,
         placeholderData: keepPreviousData,
     });
 

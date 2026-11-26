@@ -30,3 +30,5 @@ Thumbs.db
 /build/windows/dist
 /build/windows/stage
 /build/windows/out
+/build/hosting/stage
+/build/hosting/out

@@ -121,6 +121,11 @@ export function ExpiryPage() {
                                                             {t('expiry.write_off')}
                                                         </Button>
                                                     )}
+                                                    {can('purchases.manage') && (
+                                                        <Link to={`/purchase-returns/new?search=${encodeURIComponent(row.batch_no ?? row.product_name)}`} className="inline-flex">
+                                                            <Button variant="secondary">{t('expiry.return_to_supplier')}</Button>
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </td>
                                         )}

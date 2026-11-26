@@ -104,6 +104,7 @@ Confirmed purchase of ₹10,000 with ₹4,000 paid → supplier balance ₹6,000
 payments" reflects it. Cash payments reduce the day's expected cash.
 
 ## S9. Expired medicine
+*Steps 2–4 built: Expiry Alerts with Set aside, Write off and (2026-11-26) Return to supplier.*
 1. A daily check (and every stock query) classifies lots by expiry date. Expired lots are excluded from
    sale by the backend regardless of the screen.
 2. **Expiry Alerts** lists expired / 30 / 60 / 90 days / custom, with quantity, cost value, supplier and a

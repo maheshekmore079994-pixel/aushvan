@@ -16,6 +16,7 @@ use App\Models\Sale;
 use App\Models\StockBatch;
 use App\Models\Supplier;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -44,6 +45,16 @@ final class DashboardData
 
         if ($user->can(Permission::PURCHASES_MANAGE)) {
             $data['supplier_dues'] = $this->supplierDues($storeId, $todayString);
+        }
+        if ($user->can(Permission::SETTINGS_MANAGE)) {
+            // Drug licence retention fee: a reminder from 60 days before the date the owner entered until it is updated.
+            $due = $user->store->setting('licence_retention_due');
+            if (is_string($due) && $due !== '') {
+                $days = (int) $today->copy()->startOfDay()->diffInDays(Carbon::parse($due, config('shop.timezone'))->startOfDay(), false);
+                if ($days <= 60) {
+                    $data['licence'] = ['due' => $due, 'days' => $days];
+                }
+            }
         }
         if ($user->can(Permission::EXPENSES_MANAGE) || $user->can(Permission::DAY_CLOSE)) {
             $open = CashSession::where('store_id', $storeId)->where('status', CashSession::OPEN)->orderByDesc('business_date')->first();

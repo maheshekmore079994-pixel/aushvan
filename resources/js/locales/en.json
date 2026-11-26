@@ -165,7 +165,10 @@
         "day_open": "Day open",
         "day_closed": "Day not open",
         "day_button": "Day Closing",
-        "expenses_today": "Expenses today"
+        "expenses_today": "Expenses today",
+        "licence_due_one": "Drug licence retention fee is due on {{date}} ({{count}} day left).",
+        "licence_due_other": "Drug licence retention fee is due on {{date}} ({{count}} days left).",
+        "licence_overdue": "Drug licence retention fee date {{date}} has passed. Update it once paid."
     },
     "shop": {
         "title": "Shop details",
@@ -200,7 +203,9 @@
         "bill_footer": "Line at the bottom of the bill",
         "bill_footer_placeholder": "Thank you. Visit again.",
         "counter_prefix": "Counter letter",
-        "counter_prefix_help": "Put in front of bill numbers, for example A. Leave empty for one counter."
+        "counter_prefix_help": "Put in front of bill numbers, for example A. Leave empty for one counter.",
+        "udhar_overdue_days": "Udhar overdue after (days)",
+        "udhar_overdue_help": "A customer who owes and has not paid for this many days is marked overdue."
     },
     "users": {
         "title": "Users",
@@ -336,7 +341,11 @@
         "day_not_latest": "Only the most recent closed day can be reopened.",
         "not_enough_cash": "There is not that much cash in the drawer.",
         "expense_category_missing": "Choose an expense head.",
-        "expense_cancelled": "This expense is already cancelled."
+        "expense_cancelled": "This expense is already cancelled.",
+        "entry_not_reversible": "Bills and credit notes are not undone here: cancel the bill or make a return.",
+        "entry_already_reversed": "This entry was already reversed.",
+        "entry_not_found": "This entry does not belong to the customer.",
+        "doctor_missing": "This doctor is no longer on the list."
     },
     "products": {
         "type": {
@@ -530,7 +539,8 @@
         "value": "Value (cost)",
         "total_value": "Total",
         "set_aside": "Set aside",
-        "write_off": "Write off"
+        "write_off": "Write off",
+        "return_to_supplier": "Return to supplier"
     },
     "pay": {
         "cash": "Cash",
@@ -579,7 +589,9 @@
         "complete": "Complete sale",
         "saved_earlier": "This bill was already saved earlier as {{number}} — before your last changes. Check it, and bill anything added later separately.",
         "pay_short": "Pay",
-        "add_with_barcode": "Add product with this barcode"
+        "add_with_barcode": "Add product with this barcode",
+        "rx_doctor_picked": "From the doctor list.",
+        "rx_save_doctor": "Save “{{name}}” to the doctor list for next time"
     },
     "customers": {
         "choose": "Choose customer",
@@ -593,7 +605,9 @@
         "limit": "Udhar limit (₹)",
         "limit_help": "Leave empty for no limit.",
         "duplicate": "This mobile number is already used by: {{names}}",
-        "save_anyway": "Different person — save anyway"
+        "save_anyway": "Different person — save anyway",
+        "opening": "Already owes (₹)",
+        "opening_help": "Udhar from the paper book when this customer is added; a minus amount is an advance they paid."
     },
     "bill": {
         "not_found": "This bill could not be found.",
@@ -656,7 +670,20 @@
             "adjustment": "Adjustment",
             "reversal": "Correction"
         },
-        "unsure": "No answer from the server, so it is not certain this payment was saved. Press the button again to finish it safely (it will not be saved twice), or close and check the statement."
+        "unsure": "No answer from the server, so it is not certain this payment was saved. Press the button again to finish it safely (it will not be saved twice), or close and check the statement.",
+        "days_since_one": "{{count}} day since last payment",
+        "days_since_other": "{{count}} days since last payment",
+        "never_paid": "no payment yet",
+        "overdue": "Overdue",
+        "correct": "Correct",
+        "correct_help": "A correction is a new line with a reason; nothing is edited or deleted.",
+        "reverse_entry": "Undo this entry",
+        "reverse_help": "Undo this {{type}} of {{amount}} in full? A reversal line is added with your reason.",
+        "reversed_done": "Entry reversed.",
+        "adjust_direction": "What to do",
+        "adjust_up": "Add to udhar (customer owes more)",
+        "adjust_down": "Write off / reduce udhar (customer owes less)",
+        "adjusted_done": "Udhar adjusted."
     },
     "reports": {
         "intro": "Open a report, choose the dates, and print it or save it as Excel, PDF or CSV.",
@@ -665,7 +692,8 @@
             "stock": "Stock",
             "udhar": "Udhar",
             "purchases": "Purchases",
-            "cash": "Cash & expenses"
+            "cash": "Cash & expenses",
+            "medical": "Medical registers"
         },
         "name": {
             "sales_by_day": "Daily sales",
@@ -683,7 +711,10 @@
             "purchases_by_item": "Purchases by item",
             "supplier_dues": "Supplier dues",
             "expenses": "Expenses",
-            "day_closings": "Day closings"
+            "day_closings": "Day closings",
+            "prescription_sales": "Prescription sales record",
+            "h1_register": "Schedule H1 register",
+            "doctor_wise": "Sales by doctor"
         },
         "about": {
             "sales_by_day": "Bills, total and how the money came in, day by day.",
@@ -701,7 +732,10 @@
             "purchases_by_item": "What was bought, how much of it free, and at what cost.",
             "supplier_dues": "What the shop owes each supplier, and how much is past its due date.",
             "expenses": "Every expense in the period with its head and how it was paid.",
-            "day_closings": "Each closed day: opening cash, expected, counted and the difference."
+            "day_closings": "Each closed day: opening cash, expected, counted and the difference.",
+            "prescription_sales": "Every medicine sold against a prescription: serial, patient, doctor, batch, maker and expiry (Rule 65(3)).",
+            "h1_register": "The same record limited to Schedule H1 and X medicines, kept 3 years.",
+            "doctor_wise": "Prescriptions and the bill amount by prescriber, for information only."
         },
         "col": {
             "date": "Date",
@@ -772,7 +806,17 @@
             "difference": "Difference",
             "cash_sales": "Cash sales",
             "expenses": "Expenses",
-            "closed_by": "Closed by"
+            "closed_by": "Closed by",
+            "serial": "Serial",
+            "patient": "Patient",
+            "patient_address": "Patient address",
+            "doctor": "Doctor",
+            "doctor_address": "Doctor address",
+            "reg_no": "Reg. no.",
+            "schedule": "Schedule",
+            "maker": "Maker",
+            "pharmacist": "Pharmacist",
+            "prescriptions": "Prescriptions"
         },
         "preset": {
             "today": "Today",

@@ -27,6 +27,7 @@ type Form = {
     licence_retention_due: string;
     bill_footer: string;
     counter_prefix: string;
+    udhar_overdue_days: string;
 };
 
 function toForm(shop: ShopDetails): Form {
@@ -48,6 +49,7 @@ function toForm(shop: ShopDetails): Form {
         licence_retention_due: shop.settings.licence_retention_due ?? '',
         bill_footer: shop.settings.bill_footer ?? '',
         counter_prefix: shop.settings.counter_prefix ?? '',
+        udhar_overdue_days: String(shop.settings.udhar_overdue_days ?? 30),
     };
 }
 
@@ -73,6 +75,7 @@ function toPayload(form: Form) {
             licence_retention_due: blank(form.licence_retention_due),
             bill_footer: blank(form.bill_footer),
             counter_prefix: form.counter_prefix.trim().toUpperCase(),
+            udhar_overdue_days: /^\d+$/.test(form.udhar_overdue_days) ? Number(form.udhar_overdue_days) : 30,
         },
     };
 }
@@ -209,6 +212,14 @@ export function ShopSettingsPage() {
                             onChange={set('licence_retention_due')}
                             error={fieldError('settings.licence_retention_due')}
                             optional={optional}
+                        />
+                        <TextField
+                            label={t('shop.udhar_overdue_days')}
+                            value={form.udhar_overdue_days}
+                            onChange={(v) => set('udhar_overdue_days')(v.replace(/\D/g, '').slice(0, 3))}
+                            error={fieldError('settings.udhar_overdue_days')}
+                            help={t('shop.udhar_overdue_help')}
+                            inputMode="numeric"
                         />
                     </div>
                 </Card>

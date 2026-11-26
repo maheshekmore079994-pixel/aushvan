@@ -146,7 +146,8 @@ Windows shows an "unknown publisher" warning for the unsigned program — "More 
 ## 9. What NOT to promise in a demo
 
 The Windows installer and the mobile app are **not built yet**. Day closing (Sales → Day Closing) and
-expenses (Reports → Expenses) are built. Purchases and
+expenses (Reports → Expenses) are built. Hosting on a cPanel account: `docs/HOSTING_CPANEL.md` (one zip from
+`build\hosting\make-hosting.ps1`, a subdomain with https, one database, one cron line). Purchases and
 suppliers are built (Purchase → Purchases / Suppliers; a purchase is a draft until "Confirm & add to stock"). Backup is built (section 10); restore is a command, not a screen. The software has not run on a real printer or on a real phone with real packs. GST reports are
 for information; GST filing and e-invoicing are not implemented. See `docs/IMPLEMENTATION_PLAN.md`.
 

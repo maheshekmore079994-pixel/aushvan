@@ -14,6 +14,8 @@ export type Dashboard = {
     /** Only for users who close the day or enter expenses. */
     day?: { id: number; status: 'open' | 'closed'; business_date: string } | null;
     expenses_today?: { total_paise: number };
+    /** Only for settings managers, and only within 60 days of the licence retention date (negative days = past). */
+    licence?: { due: string; days: number };
     low_stock: {
         id: number;
         name: string;

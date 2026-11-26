@@ -13,7 +13,7 @@ export type ReportResult = {
     truncated: boolean;
 };
 
-export type ReportGroup = 'sales' | 'stock' | 'udhar' | 'purchases' | 'cash';
+export type ReportGroup = 'sales' | 'stock' | 'udhar' | 'purchases' | 'cash' | 'medical';
 type FilterName = 'period' | 'type' | 'days';
 
 /** Mirrors ReportRunner::REPORTS on the server; a test keeps the two lists the same. */
@@ -34,6 +34,9 @@ export const REPORTS: Record<string, { group: ReportGroup; filters: FilterName[]
     supplier_dues: { group: 'purchases', filters: [] },
     expenses: { group: 'cash', filters: ['period'] },
     day_closings: { group: 'cash', filters: ['period'] },
+    prescription_sales: { group: 'medical', filters: ['period'] },
+    h1_register: { group: 'medical', filters: ['period'] },
+    doctor_wise: { group: 'medical', filters: ['period'] },
 };
 
 export function reportQuery(filters: ReportFilters): string {

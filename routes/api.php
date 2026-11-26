@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\DayController;
+use App\Http\Controllers\Api\V1\DoctorController;
 use App\Http\Controllers\Api\V1\ExpenseController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\PurchaseController;
@@ -74,6 +75,13 @@ Route::prefix('v1')->group(function () {
         Route::post('sales/{sale}/cancel', [SaleReturnController::class, 'cancel'])
             ->middleware(['can:'.Permission::SALES_CANCEL, 'idempotent:required']);
 
+        // Doctors: picked on the prescription step by whoever bills; kept by whoever manages medicines.
+        Route::get('doctors', [DoctorController::class, 'index'])->middleware('can:'.Permission::SALES_CREATE);
+        Route::middleware('can:'.Permission::MEDICINES_MANAGE)->group(function () {
+            Route::post('doctors', [DoctorController::class, 'store'])->middleware('idempotent');
+            Route::put('doctors/{doctor}', [DoctorController::class, 'update']);
+        });
+
         // Customers and udhar
         Route::get('customers', [CustomerController::class, 'index']);
         Route::get('customers/{customer}', [CustomerController::class, 'show']);
@@ -83,6 +91,11 @@ Route::prefix('v1')->group(function () {
         });
         Route::post('customers/{customer}/payments', [CustomerController::class, 'receivePayment'])
             ->middleware(['can:'.Permission::CREDIT_RECEIVE, 'idempotent:required']);
+        // Corrections to an udhar account are new entries with a reason, never edits.
+        Route::middleware(['can:'.Permission::CREDIT_REVERSE, 'idempotent:required'])->group(function () {
+            Route::post('customers/{customer}/entries/{entry}/reverse', [CustomerController::class, 'reverse']);
+            Route::post('customers/{customer}/adjustments', [CustomerController::class, 'adjust']);
+        });
 
         // Suppliers, their MR contacts and what the shop owes them. Reading needs either purchase or supplier rights.
         Route::middleware('can:suppliers.view')->group(function () { // gate: purchases.manage or suppliers.manage

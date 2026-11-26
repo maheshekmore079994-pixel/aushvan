@@ -9,6 +9,7 @@ use App\Domain\Shared\ShopClock;
 use App\Enums\Permission;
 use App\Models\CashSession;
 use App\Models\Customer;
+use App\Models\DrugSchedule;
 use App\Models\Expense;
 use App\Models\InventoryMovement;
 use App\Models\Product;
@@ -53,6 +54,9 @@ final class ReportRunner
         'supplier_dues' => ['group' => 'purchases', 'filters' => []],
         'expenses' => ['group' => 'cash', 'filters' => ['period']],
         'day_closings' => ['group' => 'cash', 'filters' => ['period']],
+        'prescription_sales' => ['group' => 'medical', 'filters' => ['period']],
+        'h1_register' => ['group' => 'medical', 'filters' => ['period']],
+        'doctor_wise' => ['group' => 'medical', 'filters' => ['period']],
     ];
 
     private User $user;
@@ -99,6 +103,9 @@ final class ReportRunner
             'supplier_dues' => $this->supplierDues(),
             'expenses' => $this->expenses($resolved),
             'day_closings' => $this->dayClosings($resolved),
+            'prescription_sales' => $this->prescriptionSales($resolved, false),
+            'h1_register' => $this->prescriptionSales($resolved, true),
+            'doctor_wise' => $this->doctorWise($resolved),
         };
 
         $truncated = count($rows) > self::MAX_ROWS;
@@ -673,6 +680,88 @@ final class ReportRunner
             ]),
             $rows,
             ['cash_sales', 'expenses', 'difference'],
+        ];
+    }
+
+    // ---- Medical registers -------------------------------------------------------------------
+
+    /**
+     * The prescription sales record (Rule 65(3)) — one line per medicine sold against a prescription, with
+     * batch, maker and expiry — or, when $registerOnly, only the lines of schedules that keep a separate
+     * register (H1, X). Cancelled bills are left out. Prescription data needs prescriptions.view.
+     */
+    private function prescriptionSales(array $f, bool $registerOnly): array
+    {
+        if (! $this->user->can(Permission::PRESCRIPTIONS_VIEW)) {
+            return [self::columns([['serial', 'text'], ['date', 'date'], ['bill_no', 'text']]), [], []];
+        }
+        $registerCodes = DrugSchedule::where('requires_register', true)->pluck('code')->all();
+        $rows = DB::table('sale_items')
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->join('prescriptions', 'prescriptions.id', '=', 'sales.prescription_id')
+            ->join('products', 'products.id', '=', 'sale_items.product_id')
+            ->leftJoin('manufacturers', 'manufacturers.id', '=', 'products.manufacturer_id')
+            ->leftJoin('users as pharmacists', 'pharmacists.id', '=', 'sales.verified_by_pharmacist_id')
+            ->where('sales.store_id', $this->storeId)->where('sales.status', 'completed')
+            ->whereDate('sales.sale_date', '>=', $f['from'])->whereDate('sales.sale_date', '<=', $f['to'])
+            ->when($registerOnly, fn ($q) => $q->whereIn('sale_items.schedule_code', $registerCodes))
+            ->orderBy('sales.id')->orderBy('sale_items.line_no')->limit(self::MAX_ROWS + 1)
+            ->get([
+                'prescriptions.serial_no', 'sales.sale_date', 'sales.invoice_no', 'prescriptions.patient_name', 'prescriptions.patient_address',
+                'prescriptions.prescriber_name', 'prescriptions.prescriber_address', 'prescriptions.prescriber_reg_no',
+                'sale_items.product_name', 'sale_items.schedule_code', 'manufacturers.name as maker', 'sale_items.batch_no', 'sale_items.expiry_date',
+                'sale_items.qty', 'sale_items.unit_code', 'pharmacists.name as pharmacist',
+            ])
+            ->map(fn ($r) => [
+                'serial' => $r->serial_no ?? '',
+                'date' => self::day($r->sale_date),
+                'bill_no' => $r->invoice_no,
+                'patient' => $r->patient_name,
+                'patient_address' => $r->patient_address ?? '',
+                'doctor' => $r->prescriber_name,
+                'doctor_address' => $r->prescriber_address ?? '',
+                'reg_no' => $r->prescriber_reg_no ?? '',
+                'product' => $r->product_name,
+                'schedule' => $r->schedule_code ?? '',
+                'maker' => $r->maker ?? '',
+                'batch_no' => $r->batch_no ?? '',
+                'expiry_date' => self::day($r->expiry_date),
+                'qty' => (int) $r->qty,
+                'unit' => $r->unit_code,
+                'pharmacist' => $r->pharmacist ?? '',
+            ])->all();
+
+        return [
+            self::columns([
+                ['serial', 'text'], ['date', 'date'], ['bill_no', 'text'], ['patient', 'text'], ['patient_address', 'text'], ['doctor', 'text'],
+                ['doctor_address', 'text'], ['reg_no', 'text'], ['product', 'text'], ['schedule', 'text'], ['maker', 'text'], ['batch_no', 'text'],
+                ['expiry_date', 'date'], ['qty', 'int'], ['unit', 'label', 'unit'], ['pharmacist', 'text'],
+            ]),
+            $rows,
+            [],
+        ];
+    }
+
+    /** Prescriptions and medicine sales by prescriber: information for the owner, never a basis for payments (D-054). */
+    private function doctorWise(array $f): array
+    {
+        if (! $this->user->can(Permission::PRESCRIPTIONS_VIEW)) {
+            return [self::columns([['doctor', 'text'], ['prescriptions', 'int']]), [], []];
+        }
+        $rows = DB::table('sales')
+            ->join('prescriptions', 'prescriptions.id', '=', 'sales.prescription_id')
+            ->where('sales.store_id', $this->storeId)->where('sales.status', 'completed')
+            ->whereDate('sales.sale_date', '>=', $f['from'])->whereDate('sales.sale_date', '<=', $f['to'])
+            ->groupBy('prescriptions.prescriber_name', 'prescriptions.prescriber_reg_no')
+            ->selectRaw('prescriptions.prescriber_name, prescriptions.prescriber_reg_no, COUNT(*) as prescriptions, SUM(sales.total_paise) as amount')
+            ->orderByDesc('prescriptions')->limit(self::MAX_ROWS + 1)->get()
+            ->map(fn ($r) => ['doctor' => $r->prescriber_name, 'reg_no' => $r->prescriber_reg_no ?? '', 'prescriptions' => (int) $r->prescriptions, 'amount' => (int) $r->amount])
+            ->all();
+
+        return [
+            self::columns([['doctor', 'text'], ['reg_no', 'text'], ['prescriptions', 'int'], ['amount', 'money']]),
+            $rows,
+            ['prescriptions', 'amount'],
         ];
     }
 }

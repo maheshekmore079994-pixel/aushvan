@@ -11,6 +11,7 @@ use App\Domain\Shared\ShopClock;
 use App\Enums\Permission;
 use App\Exceptions\BusinessRuleException;
 use App\Models\Customer;
+use App\Models\Doctor;
 use App\Models\Payment;
 use App\Models\Prescription;
 use App\Models\Sale;
@@ -184,6 +185,18 @@ final class CompleteSale
     private function prescription(User $user, array $data, bool $required, ?Customer $customer): ?Prescription
     {
         $given = $data['prescription'] ?? null;
+        // A doctor picked from the master fills the prescriber fields; the record keeps its own copy of them.
+        $doctor = is_array($given) && ! empty($given['doctor_id'])
+            ? Doctor::where('store_id', $user->store_id)->where('is_active', true)->find($given['doctor_id'])
+            : null;
+        if (is_array($given) && ! empty($given['doctor_id']) && $doctor === null) {
+            throw new BusinessRuleException('doctor_missing', 'This doctor is no longer on the list.');
+        }
+        if ($doctor !== null) {
+            $given['prescriber_name'] = $doctor->name;
+            $given['prescriber_address'] = $doctor->addressLine();
+            $given['prescriber_reg_no'] = $doctor->reg_no;
+        }
         $complete = is_array($given) && trim((string) ($given['prescriber_name'] ?? '')) !== '' && trim((string) ($given['patient_name'] ?? '')) !== '';
 
         if (! $complete) {
@@ -196,7 +209,10 @@ final class CompleteSale
 
         return Prescription::create([
             'store_id' => $user->store_id,
+            // Rule 65(3): a serial number, also written on the paper prescription by the pharmacist.
+            'serial_no' => $this->numbers->next($user->store_id, 'prescription', 'RX'),
             'customer_id' => $customer?->id,
+            'doctor_id' => $doctor?->id,
             'patient_name' => trim($given['patient_name']),
             'patient_address' => $given['patient_address'] ?? null,
             'prescriber_name' => trim($given['prescriber_name']),

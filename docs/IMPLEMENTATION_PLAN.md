@@ -10,7 +10,7 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   printing, role management, Hindi, and phone-friendly screens, pointing at MargBooks and Vyapar as references.
   That work was done next, ahead of the planned order (decision D-030): it brought forward the reports from
   Phase 7, the role screen from Phase 8, Hindi and label printing from V1.
-- **Not built:** hold/resume, line discounts on the sale screen, H1 register report, restore screen,
+- **Not built:** hold/resume, line discounts on the sale screen, restore screen,
   Windows installer (zip exists), mobile app. Purchases and suppliers (Phase 4) and backup were built on 2026-11-26.
 - **Phases 1–3 are not closed.** Open for all: no
   bill, report or label has been printed on a real printer. Screens were checked from screenshots of the running
@@ -19,10 +19,11 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   `owner`, `pharmacist`, `manager`, `cashier`, password `demo-pass-123`; pharmacist PIN `1234`. 80 products
   with stock, 6 customers, 62 bills over 14 days (10 today: cash, UPI, card, split, udhar, prescription).
 - **Next task (owner instruction of 2026-11-26: finish the remaining modules, then host on the friend's cPanel server and demo):**
-  Phase 5 udhar extras
-  (statement print, credit limit, advances), Phase 6 compliance screens (doctor master, H1 register, expiry actions, licence
+  POS extras (hold / resume, discount limits per role, price override), then the restore screen; then hosting and the demo as soon as the cPanel details arrive. (Phase 6 compliance built 2026-11-26.) (doctor master, H1 register, expiry actions, licence
   on bills), POS extras (hold/resume, discount limits), restore screen; then the hosted deployment (subdomain on
   naturepestservices.com, https, cron for backups) and the demo. Desktop: owner test of the zip and the Inno installer still pending.
+- **2026-11-26 (Phase 6):** doctor master on the prescription step, prescription serial numbers, prescription-sales / H1 register / sales-by-doctor reports, licence-fee reminder, return-to-supplier from Expiry (D-065). Review of the udhar corrections fixed two real issues (a reversed payment now mirrors its cash row out; a relative backup folder resolves from the application folder) and added the overdue-days setting to Shop details.
+- **2026-11-26 (Phase 5 extras + hosting):** opening balances, reversal and adjustment entries, overdue flag (D-063); hosting package and cPanel guide (D-064, `docs/HOSTING_CPANEL.md`), proven by unpacking the zip and running `post-upload.sh` against MariaDB on this PC. Waiting on the owner for the cPanel subdomain, database and access.
 - **2026-11-26 (Phase 7):** day closing (cash day with stamp-and-adopt payments, D-062), cash movements, expenses with heads, two reports, dashboard tile and card. Reviewer: 11 findings (reopen without the shop lock, a payment lost at the closing second, expense refunds counted as udhar in sales-by-day, stale fields after reopen, duplicate heads) — fixed; the tester agent was stopped by the usage limit, so the robustness tests (8) were written by the developer. 15 backend tests, 4 frontend tests.
 - **2026-11-26 (Phase 4):** suppliers with MR contacts, purchases (draft → confirm → stock), supplier payments, purchase cancel and returns (D-061); 3 purchase reports and a supplier-dues card. Review + tester round: reviewer 14 findings (MRP put back on cancel, return taxed at purchase-time rate, batch returnable only to its supplier, no float in price history, locked draft delete, product checks on confirm, bounded dates and percents), tester 24 tests and one bug (zero-total confirm crashed); all fixed. 42 backend tests for the module.
 - **2026-11-26 (later):** desktop zip rebuilt with Backup and proven with the bundled PHP (migrate, demo seed, Marathi PDF, verified backup, restore) and by starting the launcher over the 22 Nov install; package slimmed to 131 MB / 50 MB zip (D-060); build script no longer packs development backups or uploads.
@@ -176,20 +177,20 @@ Exit: a user can set up the shop, log in, switch language, manage users; tests g
 
 ## Phase 5 — Customers and udhar
 
-- [ ] Customer management, opening balances, import
-- [ ] Udhar list, receive payment, advance, credit limit
-- [ ] Statement print; reversal entries
-- [ ] Tests: Scenario 7
+- [~] Customer management, opening balances, import — customers and opening balances built (D-063, 2026-11-26); CSV import not built
+- [x] Udhar list, receive payment, advance, credit limit — built in Phase 3; days since payment and the overdue flag added 2026-11-26
+- [~] Statement print; reversal entries — statement prints from the browser; reversal and adjustment entries built 2026-11-26 (D-063); WhatsApp share and receipt print not built
+- [x] Tests: Scenario 7 — `SalesTest` (udhar flows) and `UdharExtrasTest` (5)
 
 ## Phase 6 — Medical compliance and expiry
 
 - [x] Prescription capture step in POS; pharmacist verification (login/PIN) — built in Phase 3
-- [ ] Doctor master (name, reg. no., clinic, phone) picked on the prescription step; doctor-wise prescription-sales report (D-054)
-- [ ] Register entries; H1 register and prescription sales record reports
-- [ ] Expiry Alerts screen and actions; daily classification
-- [ ] Licence details on bills; licence reminder
-- [ ] "Same composition" information list
-- [ ] Tests: Scenarios 4, 9
+- [x] Doctor master (name, reg. no., clinic, phone) picked on the prescription step; doctor-wise prescription-sales report (D-054) — built 2026-11-26 (D-065)
+- [x] Register entries; H1 register and prescription sales record reports — built 2026-11-26: the registers are reports over the bill lines (serial, patient, doctor, batch, maker, expiry, pharmacist); Schedule X statement (P5) not built
+- [x] Expiry Alerts screen and actions; daily classification — screen built earlier; "Return to supplier" added 2026-11-26; classification is computed on every query (no daily job needed)
+- [x] Licence details on bills; licence reminder — licences print on bills since Phase 3; dashboard reminder from 60 days before the retention date added 2026-11-26
+- [~] "Same composition" information list — the name-based similar-product search exists; a pharmacist-verified composition list is not built (needs verified composition data)
+- [x] Tests: Scenarios 4, 9 — `SalesTest`, `ComplianceTest` (4), `StockTest` (expiry)
 
 ## Phase 7 — Expenses, day closing, reports
 

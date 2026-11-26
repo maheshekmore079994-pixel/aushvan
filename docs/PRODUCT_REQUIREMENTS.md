@@ -116,7 +116,7 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 |---|---|---|
 | H1 | Tabs: expired, 30, 60, 90 days, custom range; periods configurable | MVP |
 | H2 | Per lot: batch, quantity, cost value, MRP, supplier, suggested action, return status | MVP |
-| H3 | Actions: move to Not for sale, return to supplier, write off | MVP |
+| H3 | Actions: move to Not for sale, return to supplier, write off — **built** (return to supplier 2026-11-26) | MVP |
 | H4 | Print and export | MVP |
 
 ## I. Customers (Phase 5)
@@ -127,7 +127,7 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 | I2 | Purchase history, payment history, outstanding balance | MVP |
 | I3 | Walk-in sales need no customer | MVP |
 | I4 | Duplicate-mobile warning | MVP |
-| I5 | Opening balances; import from CSV | MVP |
+| I5 | Opening balances; import from CSV — opening balances **built 2026-11-26** (D-063); import not built (KNOWN_ISSUES Z1) | MVP |
 | I6 | Export / erase a customer's personal data on request, keeping legally required transaction records | V1 |
 
 ## J. Udhar / customer credit (Phase 5)
@@ -136,9 +136,9 @@ Detailed step-by-step behaviour is in `BUSINESS_WORKFLOWS.md`; screens in `UI_UX
 |---|---|---|
 | J1 | Credit sale, partial payment at sale, later partial/full repayment, advance payment | MVP |
 | J2 | Ledger with running balance that always reconciles to the customer balance | MVP |
-| J3 | Corrections only by reversal/adjustment entries with reason and permission | MVP |
+| J3 | Corrections only by reversal/adjustment entries with reason and permission — **built 2026-11-26** (D-063) | MVP |
 | J4 | Credit limit warning with permissioned override | MVP |
-| J5 | Udhar list sorted by amount / days since last payment; overdue flag (configurable days) | MVP |
+| J5 | Udhar list sorted by amount / days since last payment; overdue flag (configurable days) — **built** (sorted by amount; days shown; `udhar_overdue_days` setting) | MVP |
 | J6 | Statement print; share as WhatsApp text link | MVP / V1 |
 | J7 | Payment receipt print | V1 |
 | J8 | Automated SMS/WhatsApp reminders | Later (needs paid service + consent) |
@@ -203,11 +203,11 @@ Gross profit is always labelled separately from the net estimate, and never uses
 | ID | Requirement | Pri |
 |---|---|---|
 | P1 | Configurable drug schedules with per-schedule required records | MVP |
-| P2 | Prescription record: prescriber name/address/reg. no., patient name/address, date, optional photo; serial number | MVP |
+| P2 | Prescription record: prescriber name/address/reg. no., patient name/address, date, optional photo; serial number — **built** except the photo (serial `RX` series added 2026-11-26) | MVP |
 | P3 | Pharmacist identity on users; verification recorded on applicable sales (login or PIN) | MVP |
-| P4 | Register entries (H1; prescription sales record) created automatically with batch, maker, expiry | MVP |
+| P4 | Register entries (H1; prescription sales record) created automatically with batch, maker, expiry — **built 2026-11-26** as reports over the bill lines (D-065) | MVP |
 | P5 | Schedule X disabled unless licence number entered; statement to assist the physical register | V1 |
-| P6 | Drug licence numbers on medicine bills; licence retention-fee reminder | MVP |
+| P6 | Drug licence numbers on medicine bills; licence retention-fee reminder — **built** (reminder 2026-11-26) | MVP |
 | P7 | Every bill containing a medicine is numbered and printable (no "skip bill") | MVP |
 | P8 | Prescription data visible only to permitted roles | MVP |
 
@@ -248,8 +248,8 @@ Gross profit is always labelled separately from the net estimate, and never uses
 
 | ID | Requirement | Pri |
 |---|---|---|
-| T1 | Doctor master: name, registration no., clinic/address, phone; picked (or added) on the prescription step instead of retyping; the register still stores the snapshot | Phase 6 |
-| T2 | Doctor-wise report: prescriptions and medicine sales by prescriber for a period (information for the owner; no incentives, no payments to doctors are recorded) | Phase 6 |
+| T1 | Doctor master: name, registration no., clinic/address, phone; picked (or added) on the prescription step instead of retyping; the register still stores the snapshot — **built 2026-11-26** (D-065) | Phase 6 |
+| T2 | Doctor-wise report: prescriptions and medicine sales by prescriber for a period (information for the owner; no incentives, no payments to doctors are recorded) — **built 2026-11-26** | Phase 6 |
 | T3 | MR / supplier contacts: name, company, phone, usual visit day, schemes offered, notes; shown on the supplier and on purchase entry | Phase 4 |
 | T4 | Reminder on the dashboard of the MR expected today (from the visit day) | V1 |
 

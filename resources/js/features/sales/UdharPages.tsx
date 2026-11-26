@@ -1,15 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { ArrowLeft, HandCoins, Pencil, Printer, Search, UserPlus } from 'lucide-react';
+import { ArrowLeft, HandCoins, Pencil, Printer, Search, Undo2, UserPlus, Wrench } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Button, Card, Modal, SelectField, Spinner, TextField } from '@/components/ui';
+import { Alert, Badge, Button, Card, Modal, SelectField, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
 import { useSession } from '@/features/auth/session';
 import { api, ApiError, NetworkError, newIdempotencyKey } from '@/lib/api';
 import { formatMoney, parseRupees } from '@/lib/money';
-import { PAYMENT_METHODS, saleKeys, useCustomer, useCustomers, type Customer, type PaymentMethod } from './api';
+import { PAYMENT_METHODS, saleKeys, useCustomer, useCustomers, type Customer, type LedgerEntry, type PaymentMethod } from './api';
 import { CustomerForm } from './CustomerPicker';
 
 /** Who owes the shop money, largest first. */
@@ -80,8 +80,20 @@ export function UdharPage() {
                                 className="flex min-h-16 flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-white px-3 py-2 hover:border-primary"
                             >
                                 <span>
-                                    <span className="block text-lg font-semibold">{customer.name}</span>
-                                    <span className="block text-sm text-ink-soft">{[customer.mobile, customer.village].filter(Boolean).join(' · ')}</span>
+                                    <span className="block text-lg font-semibold">
+                                        {customer.name}
+                                        {customer.overdue && (
+                                            <span className="ml-2 align-middle">
+                                                <Badge tone="danger">{t('udhar.overdue')}</Badge>
+                                            </span>
+                                        )}
+                                    </span>
+                                    <span className="block text-sm text-ink-soft">
+                                        {[customer.mobile, customer.village].filter(Boolean).join(' · ')}
+                                        {customer.balance_paise > 0 && (
+                                            <span className="ml-2">· {customer.last_payment_at ? t('udhar.days_since', { count: customer.days_since_payment }) : t('udhar.never_paid')}</span>
+                                        )}
+                                    </span>
                                 </span>
                                 <span className={clsx('text-xl font-bold', customer.balance_paise > 0 ? 'text-warning' : 'text-success-dark')}>
                                     {customer.balance_paise < 0 ? t('udhar.advance', { amount: formatMoney(-customer.balance_paise) }) : formatMoney(customer.balance_paise)}
@@ -108,6 +120,8 @@ export function CustomerPage() {
     const queryClient = useQueryClient();
     const [receiving, setReceiving] = useState(false);
     const [editing, setEditing] = useState(false);
+    const [correcting, setCorrecting] = useState(false);
+    const [reversing, setReversing] = useState<LedgerEntry | null>(null);
 
     if (customer.isError) return <Alert>{t('customers.not_found')}</Alert>;
     if (customer.isPending) return <Spinner label={t('common.loading')} shape="page" />;
@@ -134,6 +148,11 @@ export function CustomerPage() {
                     {can('customers.manage') && (
                         <Button variant="secondary" onClick={() => setEditing(true)} icon={<Pencil className="size-4" aria-hidden />}>
                             {t('common.edit')}
+                        </Button>
+                    )}
+                    {can('credit.reverse') && (
+                        <Button variant="secondary" onClick={() => setCorrecting(true)} icon={<Wrench className="size-4" aria-hidden />}>
+                            {t('udhar.correct')}
                         </Button>
                     )}
                     {can('credit.receive') && (
@@ -180,7 +199,12 @@ export function CustomerPage() {
                                     </td>
                                     <td className="py-2 pr-4 text-right">{entry.debit_paise > 0 ? formatMoney(entry.debit_paise, false) : ''}</td>
                                     <td className="py-2 pr-4 text-right text-success-dark">{entry.credit_paise > 0 ? formatMoney(entry.credit_paise, false) : ''}</td>
-                                    <td className="py-2 text-right font-semibold">{formatMoney(entry.balance_after_paise, false)}</td>
+                                    <td className="py-2 text-right font-semibold">
+                                        {formatMoney(entry.balance_after_paise, false)}
+                                        {can('credit.reverse') && entry.reversible && (
+                                            <Button variant="ghost" className="ml-1 print:hidden" onClick={() => setReversing(entry)} aria-label={t('udhar.reverse_entry')} icon={<Undo2 className="size-4" aria-hidden />} />
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -204,7 +228,116 @@ export function CustomerPage() {
                     />
                 )}
             </Modal>
+            <Modal open={correcting} onClose={() => setCorrecting(false)} title={t('udhar.correct')} closeLabel={t('common.close')}>
+                {correcting && <CorrectForm customer={c} onDone={() => setCorrecting(false)} />}
+            </Modal>
+            <Modal open={reversing !== null} onClose={() => setReversing(null)} title={t('udhar.reverse_entry')} closeLabel={t('common.close')}>
+                {reversing && <ReverseForm customer={c} entry={reversing} onDone={() => setReversing(null)} />}
+            </Modal>
         </div>
+    );
+}
+
+/** A write-off or an addition to the udhar, as a new line with a reason (credit.reverse). */
+function CorrectForm({ customer, onDone }: { customer: Customer; onDone: () => void }) {
+    const { t } = useTranslation();
+    const toast = useToast();
+    const queryClient = useQueryClient();
+    const key = useRef(newIdempotencyKey());
+    const [direction, setDirection] = useState<'down' | 'up'>('down');
+    const [amount, setAmount] = useState('');
+    const [reason, setReason] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+
+    async function submit(event: FormEvent) {
+        event.preventDefault();
+        const paise = parseRupees(amount);
+        if (paise === null || paise < 1) return setMessage(t('validation.amount'));
+        if (reason.trim().length < 3) return setMessage(t('validation.reason'));
+        setBusy(true);
+        setMessage(null);
+        try {
+            await api(`/customers/${customer.id}/adjustments`, { method: 'POST', idempotencyKey: key.current, body: { direction, amount_paise: paise, reason: reason.trim() } });
+            await queryClient.invalidateQueries({ queryKey: saleKeys.customers });
+            toast('success', t('udhar.adjusted_done'));
+            onDone();
+        } catch (e) {
+            setMessage(e instanceof ApiError && e.code ? t(`errors.${e.code}`, { defaultValue: t('app.error_generic') }) : t('app.error_generic'));
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    return (
+        <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+            {message && <Alert>{message}</Alert>}
+            <p className="text-ink-soft">{t('udhar.correct_help')}</p>
+            <SelectField
+                label={t('udhar.adjust_direction')}
+                value={direction}
+                onChange={(v) => setDirection(v as 'down' | 'up')}
+                options={[
+                    { value: 'down', label: t('udhar.adjust_down') },
+                    { value: 'up', label: t('udhar.adjust_up') },
+                ]}
+            />
+            <TextField label={t('udhar.amount')} value={amount} onChange={setAmount} inputMode="decimal" autoFocus />
+            <TextField label={t('stock.reason')} value={reason} onChange={setReason} maxLength={300} />
+            <div className="flex justify-end gap-3 border-t border-line pt-4">
+                <Button variant="secondary" onClick={onDone} disabled={busy}>
+                    {t('common.cancel')}
+                </Button>
+                <Button type="submit" busy={busy}>
+                    {t('common.save')}
+                </Button>
+            </div>
+        </form>
+    );
+}
+
+/** Undoes one payment / opening / adjustment line in full, with a reason. */
+function ReverseForm({ customer, entry, onDone }: { customer: Customer; entry: LedgerEntry; onDone: () => void }) {
+    const { t } = useTranslation();
+    const toast = useToast();
+    const queryClient = useQueryClient();
+    const key = useRef(newIdempotencyKey());
+    const [reason, setReason] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const amount = entry.debit_paise > 0 ? entry.debit_paise : entry.credit_paise;
+
+    async function submit(event: FormEvent) {
+        event.preventDefault();
+        if (reason.trim().length < 3) return setMessage(t('validation.reason'));
+        setBusy(true);
+        setMessage(null);
+        try {
+            await api(`/customers/${customer.id}/entries/${entry.id}/reverse`, { method: 'POST', idempotencyKey: key.current, body: { reason: reason.trim() } });
+            await queryClient.invalidateQueries({ queryKey: saleKeys.customers });
+            toast('success', t('udhar.reversed_done'));
+            onDone();
+        } catch (e) {
+            setMessage(e instanceof ApiError && e.code ? t(`errors.${e.code}`, { defaultValue: t('app.error_generic') }) : t('app.error_generic'));
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    return (
+        <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+            {message && <Alert>{message}</Alert>}
+            <p>{t('udhar.reverse_help', { type: t(`udhar.entry.${entry.type}`, { defaultValue: entry.type }), amount: formatMoney(amount) })}</p>
+            <TextField label={t('stock.reason')} value={reason} onChange={setReason} autoFocus maxLength={300} />
+            <div className="flex justify-end gap-3 border-t border-line pt-4">
+                <Button variant="secondary" onClick={onDone} disabled={busy}>
+                    {t('common.cancel')}
+                </Button>
+                <Button type="submit" variant="danger" busy={busy}>
+                    {t('udhar.reverse_entry')}
+                </Button>
+            </div>
+        </form>
     );
 }
 

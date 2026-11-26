@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Backup\LocalDir;
+
 return [
     // Business dates (bill date, financial year, day closing) use the shop's local time.
     // Timestamps in the database stay in UTC.
@@ -39,7 +41,8 @@ return [
 
     'backup' => [
         // Where backups are made and kept on this PC/server before (and besides) the backup folder.
-        'local_dir' => env('BACKUP_LOCAL_DIR', storage_path('app/backups')),
+        // A relative value is taken from the application folder (see App\Domain\Backup\LocalDir), so web requests and cron agree.
+        'local_dir' => LocalDir::resolve(env('BACKUP_LOCAL_DIR'), base_path(), storage_path('app/backups')),
         // Local copies kept; older files are removed (the rows and the folder copies stay).
         'keep_local' => (int) env('BACKUP_KEEP_LOCAL', 7),
         // The dashboard warns when the last verified backup is older than this.

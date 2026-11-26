@@ -22,6 +22,7 @@ use App\Models\CashMovement;
 use App\Models\CashSession;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Doctor;
 use App\Models\DrugSchedule;
 use App\Models\ExpenseCategory;
 use App\Models\Product;
@@ -91,6 +92,7 @@ class DemoDataSeeder extends Seeder
         $this->medicines();
         $this->generalGoods();
         $this->suppliersAndPurchases();
+        $this->doctors();
         $this->customersAndBills();
         $this->expensesAndCashDays();
 
@@ -531,6 +533,21 @@ class DemoDataSeeder extends Seeder
         // Ramesh pays Rs 300 of his udhar by UPI.
         app(ReceiveCustomerPayment::class)->handle($cashier, $customers['Ramesh Patil']->refresh(), 30000, 'upi', 'UPI-DEMO-1');
         Auth::setUser($this->owner);
+    }
+
+    /** The doctors the shop sees most often, offered on the prescription step. */
+    private function doctors(): void
+    {
+        foreach ([
+            ['Dr. Anil Patil', 'MMC-2011-04567', 'Patil Clinic', 'Station Road, Khadavli', '9822000111'],
+            ['Dr. Meena Joshi', 'MMC-2015-11234', 'Joshi Nursing Home', 'Kalyan West', '9822000112'],
+            ['Dr. Suresh Kale', 'MMC-2008-00891', 'Primary Health Centre', 'Titwala', null],
+        ] as [$name, $reg, $clinic, $address, $phone]) {
+            Doctor::create([
+                'store_id' => $this->owner->store_id, 'name' => $name, 'reg_no' => $reg, 'clinic' => $clinic, 'address' => $address, 'phone' => $phone,
+                'search_text' => Product::buildSearchText($name, $reg, $clinic, $phone),
+            ]);
+        }
     }
 
     /**

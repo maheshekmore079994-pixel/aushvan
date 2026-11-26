@@ -44,6 +44,7 @@ class UpdateStoreRequest extends FormRequest
             'settings.drug_licence_21' => ['nullable', 'string', 'max:50'],
             'settings.drug_licence_20f' => ['nullable', 'string', 'max:50'],
             'settings.licence_retention_due' => ['nullable', 'date_format:Y-m-d'],
+            'settings.udhar_overdue_days' => ['nullable', 'integer', 'min:1', 'max:365'],
             'settings.bill_footer' => ['nullable', 'string', 'max:200'],
             'settings.counter_prefix' => ['nullable', 'string', 'max:2', 'regex:/^[A-Z0-9]*$/'],
         ];
