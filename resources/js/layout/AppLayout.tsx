@@ -5,6 +5,7 @@ import {
     Boxes,
     CalendarClock,
     ChevronDown,
+    DatabaseBackup,
     HandCoins,
     LayoutDashboard,
     LogOut,
@@ -68,6 +69,7 @@ const NAV: { heading?: string; items: NavItem[] }[] = [
             { to: '/settings/shop', label: 'nav.shop', icon: Store },
             { to: '/settings/users', label: 'nav.users', icon: Users, permission: 'users.manage' },
             { to: '/settings/roles', label: 'nav.roles', icon: ShieldCheck, ownerOnly: true },
+            { to: '/settings/backup', label: 'nav.backup', icon: DatabaseBackup, permission: 'backup.manage' },
         ],
     },
 ];

@@ -16,19 +16,22 @@ import {
     Wallet,
     type LucideIcon,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Mascot } from '@/components/Mascot';
-import { Badge, Card, IconTile, Spinner, type TileTone } from '@/components/ui';
+import { useToast } from '@/components/toast';
+import { Alert, Badge, Card, IconTile, Spinner, type TileTone } from '@/components/ui';
 import { useSession } from '@/features/auth/session';
 import { useUnitLabel } from '@/features/products/api';
 import { ExpiryBadge, StockBadge, TypeBadge } from '@/features/products/badges';
-import { useShop, useUsers } from '@/features/settings/api';
+import { useShop, useUsers, type BackupRow } from '@/features/settings/api';
+import { api } from '@/lib/api';
 import { dateLocale } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { formatQty } from '@/lib/qty';
-import { useDashboard, type Dashboard, type SalesTotals } from './api';
+import { dashboardKey, useDashboard, type Dashboard, type SalesTotals } from './api';
 import { ColumnChart, RankList, SplitBar } from './charts';
 import { StockOverview } from './StockOverview';
 
@@ -351,6 +354,59 @@ function Lists({ data }: { data: Dashboard }) {
     );
 }
 
+/**
+ * Warns when the last verified backup is too old, and — when a backup folder is set and no copy went there
+ * recently — takes one by itself, once per visit, telling the owner what happened.
+ */
+function BackupReminder({ backup }: { backup: NonNullable<Dashboard['backup']> }) {
+    const { t } = useTranslation();
+    const toast = useToast();
+    const queryClient = useQueryClient();
+    const started = useRef(false);
+    const [auto, setAuto] = useState<'idle' | 'running' | 'done' | 'failed'>('idle');
+
+    useEffect(() => {
+        if (!backup.auto_wanted || started.current) return;
+        started.current = true;
+        setAuto('running');
+        api<BackupRow | undefined>('/backups/auto', { method: 'POST' })
+            .then((row) => {
+                if (row && row.status === 'verified' && row.folder_path) {
+                    setAuto('done');
+                    toast('success', t('dashboard.backup_auto_done', { folder: backup.folder ?? '' }));
+                } else if (row && row.status === 'verified') {
+                    // Safe on this computer, but the copy did not reach the folder: say why, in words.
+                    setAuto('done');
+                    toast('error', `${t('backup.done_local')} ${row.warning ? t(`errors.${row.warning}`) : ''}`.trim());
+                } else if (row) {
+                    setAuto('failed');
+                    toast('error', t('dashboard.backup_auto_failed'));
+                } else {
+                    setAuto('idle');
+                }
+                void queryClient.invalidateQueries({ queryKey: dashboardKey });
+            })
+            .catch(() => {
+                setAuto('failed');
+                toast('error', t('dashboard.backup_auto_failed'));
+            });
+    }, [backup.auto_wanted, backup.folder, queryClient, t, toast]);
+
+    if (auto === 'running') return <Alert tone="info">{t('dashboard.backup_auto_running')}</Alert>;
+    if (!backup.due && auto !== 'failed') return null;
+
+    return (
+        <Alert tone="warning">
+            <span className="flex flex-wrap items-center justify-between gap-2">
+                <span>{auto === 'failed' ? t('dashboard.backup_auto_failed') : backup.last_verified_at === null ? t('dashboard.backup_none') : t('dashboard.backup_old')}</span>
+                <Link to="/settings/backup" className="font-semibold underline">
+                    {t('dashboard.backup_open')}
+                </Link>
+            </span>
+        </Alert>
+    );
+}
+
 type Step = { title: string; help: string; done: boolean; to: string; note?: string };
 
 /** Shown only until the shop's own details are complete. */
@@ -442,6 +498,8 @@ export function DashboardPage() {
                     </Link>
                 ))}
             </section>
+
+            {dashboard.data?.backup && <BackupReminder backup={dashboard.data.backup} />}
 
             {dashboard.isPending && <Spinner label={t('common.loading')} shape="tiles" />}
             {dashboard.data && <KpiRow data={dashboard.data} />}

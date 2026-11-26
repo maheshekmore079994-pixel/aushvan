@@ -100,6 +100,7 @@ Remove-Item (Join-Path $dist 'app\database\*.sqlite*') -Force -ErrorAction Silen
     'APP_DEBUG=false',
     'APP_URL=http://127.0.0.1:8765',
     'APP_LOCALE=en',
+    "APP_VERSION=$Version",
     'LOG_CHANNEL=daily',
     'LOG_LEVEL=warning',
     'DB_CONNECTION=sqlite',

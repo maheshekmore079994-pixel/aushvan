@@ -33,4 +33,18 @@ return [
 
     // Failed logins allowed per username + IP per minute.
     'login_attempts_per_minute' => 5,
+
+    // Written into every backup's manifest; the desktop build sets APP_VERSION from the package version.
+    'version' => env('APP_VERSION', '0.9.0'),
+
+    'backup' => [
+        // Where backups are made and kept on this PC/server before (and besides) the backup folder.
+        'local_dir' => env('BACKUP_LOCAL_DIR', storage_path('app/backups')),
+        // Local copies kept; older files are removed (the rows and the folder copies stay).
+        'keep_local' => (int) env('BACKUP_KEEP_LOCAL', 7),
+        // The dashboard warns when the last verified backup is older than this.
+        'due_after_hours' => (int) env('BACKUP_DUE_AFTER_HOURS', 48),
+        // A backup folder set and no verified backup within this many hours → one is taken automatically.
+        'auto_after_hours' => (int) env('BACKUP_AUTO_AFTER_HOURS', 20),
+    ],
 ];

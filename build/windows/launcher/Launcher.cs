@@ -103,6 +103,8 @@ internal static class Program
         envText = SetEnv(envText, "DB_DATABASE", dbPath.Replace("\\", "/"));
         envText = SetEnv(envText, "APP_URL", "http://127.0.0.1:" + port);
         envText = SetEnv(envText, "SANCTUM_STATEFUL_DOMAINS", "127.0.0.1:" + port + ",localhost:" + port + ",127.0.0.1,localhost");
+        // Local backup copies live beside the data, not inside the program folder an update replaces.
+        envText = SetEnv(envText, "BACKUP_LOCAL_DIR", Path.Combine(LocalDir, "backups").Replace("\\", "/"));
         // The application key is kept with the data: an update that replaces .env must not change it.
         if (File.Exists(KeyFile)) envText = SetEnv(envText, "APP_KEY", File.ReadAllText(KeyFile).Trim());
         File.WriteAllText(env, envText);

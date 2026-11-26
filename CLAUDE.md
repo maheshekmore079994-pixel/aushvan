@@ -136,6 +136,7 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - `app/Domain/Sales/SalePricer.php` — prices a cart (batches, tax, round-off). Used by both the preview and `CompleteSale`; never duplicate its maths in the frontend.
 - `app/Domain/Sales/ReturnPricer.php` — prices a return from the bill's own line amounts (never today's prices); `ReturnSale` and `CancelSale` in `app/Actions/` own the transactions. Sales, bill lines, returns and return lines refuse updates at the model level.
 - `app/Domain/Parties/CustomerLedger.php` — the only code that may change a customer's `balance_paise`.
+- `app/Domain/Backup/` — BackupArchive (zip: database copy/dump + uploads + manifest), BackupVerifier (a backup is "verified" only after re-reading it), BackupRestorer, BackupFolder (USB folder, due/auto status); `app/Actions/MakeBackup.php` owns one attempt; commands `backup:run`, `backup:restore`.
 - `app/Domain/Reports/` — ReportRunner (every report as one table; add a report here and in `features/reports/api.ts`), ReportExporter (CSV / Excel / PDF), ReportLabels (export words from the locale JSON files), DashboardData.
 - `app/Domain/Catalog/` — ProductQuery (stock subqueries that run on MySQL and SQLite), ProductPresenter, Barcode.
 - `app/Exceptions/BusinessRuleException.php` — throw for a rule refusal; answered as HTTP 409 with a `code` the screens translate under `errors.<code>`.
@@ -178,6 +179,8 @@ All four checks (backend tests, frontend tests, type check, pint) must pass befo
 - The shared `Modal` reports only a user-requested close (Esc or the X). Do not wire the native dialog `close` event to state.
 - In backend tests one user object is reused across requests: after changing the shop, call `$user->unsetRelation('store')`.
 - ULIDs use Crockford base32 (no I, L, O, U); the server rejects anything else.
+- Tests that run `VACUUM INTO` or `ATTACH` (backups) must use `DatabaseMigrations`, not `RefreshDatabase`: SQLite refuses both inside the transaction RefreshDatabase wraps each test in.
+- Two files made in the same second must not share a name (backups overwrote each other in tests): add a numbered tail.
 - API requests from tests need the `Origin` header (set in `Tests\TestCase`) so the session-cookie login applies.
   Any private-range origin (192.168.*, 10.*, 172.16–31.*) is stateful by configuration (D-058); a non-stateful
   origin is refused at login with `not_shop_network`, never with a session error.

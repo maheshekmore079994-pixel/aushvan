@@ -59,7 +59,8 @@
         "search_placeholder": "Search products or jump to a screen…",
         "account": "Account",
         "collapse_menu": "Collapse menu",
-        "expand_menu": "Expand menu"
+        "expand_menu": "Expand menu",
+        "backup": "Backup"
     },
     "auth": {
         "login_title": "Sign in",
@@ -143,7 +144,13 @@
         "top_udhar": "Biggest udhar",
         "no_sales_yet": "No sales yet.",
         "see_report": "Report",
-        "see_all": "See all"
+        "see_all": "See all",
+        "backup_none": "No backup has been taken yet. A disk failure would lose everything.",
+        "backup_old": "The last verified backup is older than 2 days.",
+        "backup_open": "Back up now",
+        "backup_auto_running": "Backing up to the backup folder…",
+        "backup_auto_done": "Backup made and checked; a copy is in {{folder}}.",
+        "backup_auto_failed": "The automatic backup did not reach the backup folder. Open Backup to see why."
     },
     "shop": {
         "title": "Shop details",
@@ -275,7 +282,25 @@
         "expired_cannot_restock": "This batch has expired and cannot go back on sale. Choose \"Not for sale\".",
         "restock_needs_permission": "Only a pharmacist may put returned medicine back on sale. Choose \"Not for sale\", or ask the pharmacist.",
         "refund_method_required": "Say how the money is given back.",
-        "pin_wrong": "The PIN is wrong. Try again."
+        "pin_wrong": "The PIN is wrong. Try again.",
+        "backup_file_missing": "The backup file is missing or empty.",
+        "backup_archive_broken": "The backup file is damaged and cannot be opened.",
+        "backup_manifest_mismatch": "The backup file does not match what was recorded when it was made.",
+        "backup_database_broken": "The database copy inside the backup is damaged.",
+        "backup_counts_differ": "The row counts inside the backup do not match the record of it.",
+        "backup_write_failed": "The backup could not be written. Check free disk space and the log.",
+        "backup_folder_missing": "The backup folder was not found (USB stick not plugged in?). The copy stayed on this computer only.",
+        "backup_folder_full": "There is not enough space in the backup folder. The copy stayed on this computer only.",
+        "backup_folder_copy_failed": "The copy to the backup folder failed. The copy stayed on this computer only.",
+        "backup_folder_copy_broken": "The copy in the backup folder did not pass the check and was removed. Try another USB stick.",
+        "backup_file_gone": "This backup is no longer on this computer (older copies are removed).",
+        "backup_schema_differs": "The backup was made with another version of AUSHVAN. Install that version first.",
+        "backup_driver_differs": "The backup comes from another kind of database and cannot be restored here.",
+        "backup_folder_not_absolute": "Give the full path, starting with the drive letter (for example E:\\AUSHVAN Backups).",
+        "backup_folder_inside_app": "The folder must be outside the AUSHVAN program and data folders.",
+        "backup_folder_unreachable": "This folder cannot be used: it does not exist, or nothing can be written there.",
+        "backup_running": "A backup is already being taken. Wait a moment and try again.",
+        "backup_uploads_broken": "An uploaded file inside the backup is damaged."
     },
     "products": {
         "type": {
@@ -862,5 +887,57 @@
         "balance_now": "Udhar balance now",
         "refunded_by": "Paid back by {{method}}",
         "made_by": "Entered by {{name}}"
+    },
+    "backup": {
+        "title": "Backup",
+        "intro": "A copy of all shop data — bills, stock, udhar, settings — checked after it is written. Keep it on a USB stick or a second disk, not only on this computer.",
+        "now": "Back up now",
+        "working": "Backing up…",
+        "last_title": "Last backup",
+        "none_yet": "No backup yet",
+        "overdue": "Older than 2 days",
+        "up_to_date": "Up to date",
+        "last_folder_unset": "No backup folder is set: backups stay on this computer only, where a disk failure would take them too.",
+        "last_in_folder": "Last copy in {{folder}}: {{when}}.",
+        "never_in_folder": "No copy has reached {{folder}} yet.",
+        "kept_local": "The last {{count}} backups are kept on this computer and can be downloaded below.",
+        "done_folder": "Backup made and checked; a copy is in the backup folder.",
+        "done_folder_detail": "Backup made and checked. Copy saved in {{folder}}.",
+        "done_local": "Backup made and checked on this computer.",
+        "failed": "The backup failed and must not be relied on.",
+        "counts_line": "It holds {{sales}} bills, {{products}} products and {{customers}} customers.",
+        "folder_title": "Backup folder (USB stick or second disk)",
+        "folder_help": "Every backup is also copied here and checked again. Plug in the USB stick, pick its drive, Save. If the stick is not plugged in, the backup is still made on this computer and you are told.",
+        "folder_label": "Folder",
+        "folder_found": "Folder found — the next backup will be copied here.",
+        "folder_not_found": "Folder not found right now. Plug in the USB stick or check the drive.",
+        "drives": "Drives on this computer",
+        "free": "{{size}} free",
+        "system_drive": "this computer",
+        "same_disk_warning": "This is the computer’s own disk. If it fails, the backup is lost with the data. Choose a USB stick or another disk.",
+        "history": "Backups taken",
+        "no_history": "No backup has been taken yet.",
+        "col_when": "When",
+        "col_result": "Result",
+        "col_where": "Copy in folder",
+        "col_size": "Size",
+        "this_pc_only": "This computer only",
+        "download": "Download",
+        "kind": {
+            "manual": "By hand",
+            "auto": "Automatic",
+            "scheduled": "Scheduled",
+            "before_restore": "Before a restore"
+        },
+        "status": {
+            "verified": "Verified",
+            "failed": "Failed"
+        },
+        "restore_title": "Restoring a backup",
+        "restore_help": "A restore replaces everything in the system with the backup, after saving a copy of the current data. It is done from the command line on the computer that runs AUSHVAN, while nobody is billing (see HOW_TO_RUN, section 10):",
+        "restore_file_placeholder": "path to the backup .zip",
+        "unit_kb": "KB",
+        "unit_mb": "MB",
+        "unit_gb": "GB"
     }
 }

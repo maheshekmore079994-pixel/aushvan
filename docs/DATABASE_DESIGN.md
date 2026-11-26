@@ -93,8 +93,10 @@ created_at. Index (subject_type, subject_id), (created_at).
 
 **attachments** — attachable_type, attachable_id, disk, path, original_name, mime, size, sha256, uploaded_by.
 
-**backups** — store_id, file_name, size, sha256, kind (`manual` | `scheduled`), status
-(`created` | `verified` | `failed`), verified_at, error, created_by.
+**backups** — store_id, kind (`manual` | `auto` | `scheduled` | `before_restore`), file_name, local_path (nullable once
+retention removed the copy), folder_path (verified copy in the backup folder, nullable), size_bytes, sha256, status
+(`verified` | `failed`), error, warning (verified but e.g. folder missing), manifest (JSON: counts, schema, database
+checksum), created_by, verified_at. The backup folder itself is the `backup_folder` setting.
 
 ### Catalogue
 

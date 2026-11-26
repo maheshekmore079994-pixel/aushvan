@@ -64,6 +64,10 @@ data export, prescription record views. Visible to the Owner under Settings → 
 
 ## Backup
 
+**Status 2026-11-26:** built as described in D-059 — `app/Domain/Backup/` (archive, verifier, restorer, folder), `app/Actions/MakeBackup.php`,
+Settings → Backup, home-screen reminder and automatic daily copy, `backup:run` / `backup:restore` commands. Not yet
+built, marked *(planned)* below: restore screen, encryption, off-site upload, weekly/monthly retention tiers.
+
 ### What is backed up
 The whole database plus the uploads folder (prescription photos, invoice scans, product images) and a small
 manifest (app version, schema version, row counts of key tables, checksums).
@@ -72,26 +76,27 @@ manifest (app version, schema version, row counts of key tables, checksums).
 | Deployment | Mechanism | Where it goes |
 |---|---|---|
 | Hosted (MySQL) | PHP-based dump through the application (works on shared hosting where `mysqldump` may be unavailable); `mysqldump` used when present | Server private storage + **download to the shop PC**; optional copy to the owner's cloud drive later |
-| Windows local (SQLite) | Consistent snapshot of the database file (`VACUUM INTO`) + uploads, zipped | A second folder/drive or USB stick + encrypted upload to cheap off-site storage when online |
+| Windows local (SQLite) | Consistent snapshot of the database file (`VACUUM INTO`) + uploads, zipped | `%LOCALAPPDATA%\AUSHVAN\backups` (last 7) **and** the backup folder (USB stick / second disk) set in Settings → Backup; encrypted off-site upload *(planned)* |
 
-- **Manual:** Settings → Backup → "Back up now" → download.
-- **Scheduled:** daily where the host allows cron; additionally offered at Day Closing ("Back up today's data").
-- **Retention:** last 7 daily, 4 weekly, 12 monthly (configurable).
-- **Reminder:** the dashboard warns the Owner when the last verified backup is older than 2 days.
+- **Manual:** Settings → Backup → "Back up now"; the last 7 local copies can be downloaded from the same screen.
+- **Automatic (local install):** when a backup folder is set and no verified copy reached it in the last 20 hours, the home screen of a user with `backup.manage` takes one and says where it went. **Scheduled (hosted):** `backup:run --if-due` daily at 21:30 through cron. Offered at Day Closing *(planned with day closing)*.
+- **Retention:** last 7 local copies (`BACKUP_KEEP_LOCAL`); nothing is ever deleted from the backup folder. Weekly/monthly tiers *(planned)*.
+- **Reminder:** the home screen warns users with `backup.manage` when the last verified backup is older than 48 hours (`BACKUP_DUE_AFTER_HOURS`).
+- **Permission:** every backup route needs `backup.manage` (Owner by default). Every attempt, success or failure, is a `backups` row and an audit entry; folder changes, downloads and restores are audited too.
 
 ### Verification — a backup is not "successful" until
 1. the file exists, is non-empty, and its checksum is recorded;
 2. the archive opens and contains the manifest and database dump;
-3. the dump is restored into a temporary database (SQLite: opened and `integrity_check` run) and the row
-   counts of key tables match the manifest.
+3. the database copy has the checksum recorded in the manifest, opens (SQLite: `integrity_check`; MySQL dump: header
+   and statement structure) and the row counts of the 11 key tables match the manifest. The copy in the backup folder
+   is verified separately from the local one.
 
 Only then is the backup marked **Verified** and reported as successful. Any failure is shown in red with the reason.
 
 ### Restore
-- Settings → Backup → Restore (Owner only, password re-entry, typed confirmation).
-- The system first takes a safety backup of the current data, then restores into a clean database, runs
-  migrations if the backup is from an older version, runs the integrity check, and reports the result.
-- Restore replaces everything; it is never a merge. This is stated on the screen.
+- Built: `php artisan backup:restore <file>` (asks for confirmation; `--force` skips it). It verifies the archive, refuses one from another application version (`backup_schema_differs`) or database kind, takes a safety backup of the current data (`before_restore`), then replaces every table except `migrations` and `backups` inside one transaction and recounts the key tables against the manifest. HOW_TO_RUN §10 has the steps, including the desktop build.
+- Restore replaces everything; it is never a merge. This is stated on the Backup screen.
+- *(planned)* Settings → Backup → Restore (Owner only, password re-entry, typed confirmation); migrating a backup from an older version forward.
 
 ## Recovery guide in simple language (to be finalised and rehearsed in Phase 8)
 

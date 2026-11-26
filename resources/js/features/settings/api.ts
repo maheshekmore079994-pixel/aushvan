@@ -43,6 +43,40 @@ export type StaffUser = {
     last_login_at: string | null;
 };
 
+export type BackupStatus = {
+    last_verified_at: string | null;
+    last_in_folder_at: string | null;
+    due: boolean;
+    auto_wanted: boolean;
+    folder: string | null;
+    folder_ok: boolean;
+};
+
+export type BackupRow = {
+    id: number;
+    kind: 'manual' | 'auto' | 'scheduled' | 'before_restore';
+    file_name: string;
+    size_bytes: number;
+    status: 'verified' | 'failed';
+    error: string | null;
+    warning: string | null;
+    folder_path: string | null;
+    downloadable: boolean;
+    counts: Record<string, number> | null;
+    by: string | null;
+    created_at: string;
+};
+
+export type BackupOverview = {
+    status: BackupStatus;
+    drives: { path: string; free_bytes: number; total_bytes: number; system: boolean }[];
+    keep_local: number;
+    backups: BackupRow[];
+};
+
+export const backupsKey = ['backups'] as const;
+export const useBackups = () => useQuery({ queryKey: backupsKey, queryFn: () => api<BackupOverview>('/backups') });
+
 export const shopKey = ['store'] as const;
 export const usersKey = ['users'] as const;
 

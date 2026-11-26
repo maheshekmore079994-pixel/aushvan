@@ -27,6 +27,8 @@ export type Dashboard = {
     trend?: { date: string; bills: number; sales_paise: number }[];
     split_30?: { medical_paise: number; general_paise: number };
     top_products?: { id: number; name: string; type: ProductType; amount_paise: number }[];
+    /** Only for users with backup.manage. */
+    backup?: { last_verified_at: string | null; last_in_folder_at: string | null; due: boolean; auto_wanted: boolean; folder: string | null; folder_ok: boolean };
 };
 
 export const dashboardKey = ['dashboard'] as const;

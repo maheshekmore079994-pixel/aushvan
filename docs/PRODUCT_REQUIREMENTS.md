@@ -231,8 +231,8 @@ Gross profit is always labelled separately from the net estimate, and never uses
 | R1 | Login with username + password; optional short PIN for quick authorisation at the counter | MVP |
 | R2 | Roles Owner, Pharmacist, Store Manager, Cashier; editable permissions; one-user shop supported | MVP |
 | R3 | Backend authorisation on every action; audit log of sensitive actions | MVP |
-| R4 | Manual backup with download, verification, history; scheduled backup where possible | MVP |
-| R5 | Documented and tested restore | MVP |
+| R4 | Manual backup with download, verification, history; scheduled backup where possible — **built 2026-11-26** (D-059): verified zip, USB/second-disk folder, automatic daily copy, history with download, cron command | MVP |
+| R5 | Documented and tested restore — **built as a command** (`backup:restore`, tested on SQLite and MariaDB); restore screen pending (KNOWN_ISSUES D7) | MVP |
 | R6 | Full business data export (CSV bundle) | V1 |
 
 ## S. Language (Phase 1 onward)

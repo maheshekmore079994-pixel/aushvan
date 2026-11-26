@@ -2,6 +2,7 @@
 
 use App\Enums\Permission;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ReportController;
@@ -91,6 +92,15 @@ Route::prefix('v1')->group(function () {
         Route::post('roles', [RoleController::class, 'store'])->middleware('idempotent');
         Route::put('roles/{role}', [RoleController::class, 'update']);
         Route::delete('roles/{role}', [RoleController::class, 'destroy']);
+
+        // Backups: a whole-database archive, verified before it is called a backup.
+        Route::middleware('can:'.Permission::BACKUP_MANAGE)->group(function () {
+            Route::get('backups', [BackupController::class, 'index']);
+            Route::post('backups', [BackupController::class, 'store'])->middleware(['idempotent', 'throttle:6,1']);
+            Route::post('backups/auto', [BackupController::class, 'auto'])->middleware('throttle:6,1');
+            Route::get('backups/{backup}/download', [BackupController::class, 'download']);
+            Route::put('backups/folder', [BackupController::class, 'updateFolder']);
+        });
 
         Route::middleware('can:'.Permission::USERS_MANAGE)->group(function () {
             Route::get('users', [UserController::class, 'index']);

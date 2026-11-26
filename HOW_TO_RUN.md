@@ -144,6 +144,32 @@ Windows shows an "unknown publisher" warning for the unsigned program — "More 
 
 ## 9. What NOT to promise in a demo
 
-Purchases/supplier entry, expenses, day closing, backup, the Windows installer and the mobile app are **not
-built yet**. The software has not run on a real printer or on a real phone with real packs. GST reports are
+Purchases/supplier entry, expenses, day closing, the Windows installer and the mobile app are **not
+built yet**. Backup is built (section 10); restore is a command, not a screen. The software has not run on a real printer or on a real phone with real packs. GST reports are
 for information; GST filing and e-invoicing are not implemented. See `docs/IMPLEMENTATION_PLAN.md`.
+
+## 10. Backup and restore
+
+**Taking a backup:** Settings → Backup (owner). Plug in a USB stick, tap its drive (for example `E:\`), Save, then
+**Back up now**. The backup is a zip with the whole database, uploaded files and a manifest; it is only called
+"Verified" after it has been re-read and its row counts checked. One copy stays on the PC (the last 7, downloadable
+from the same screen) and one goes to the stick. Once the folder is set, the home screen takes a backup by itself
+once a day when the stick is in, and warns when the last verified backup is older than 2 days. The zip is **not
+encrypted**: keep the stick with the cash, not in the drawer under the counter.
+
+**Hosted server:** add to cron `* * * * * php /path/to/artisan schedule:run`; a verified backup is then taken daily
+at 21:30 and can be downloaded from Settings → Backup.
+
+**Restoring** (replaces ALL current data with the backup; a safety copy of the current data is taken first):
+
+```powershell
+# development / hosted, from the project folder, while nobody is billing
+php artisan backup:restore "E:\AUSHVAN Backups\AUSHVAN-backup-jay-mahakali-20261126-101500.zip"
+
+# desktop build: stop AUSHVAN (tray → Stop and close), then from the install folder
+php\php.exe app\artisan backup:restore "E:\AUSHVAN Backups\AUSHVAN-backup-jay-mahakali-20261126-101500.zip"
+```
+
+The restore refuses a damaged file and a backup from another version of AUSHVAN (install that version first). After it,
+start AUSHVAN, sign in, and check that the last bill number is the one you expect; enter from the paper copies any bills
+made after the backup.

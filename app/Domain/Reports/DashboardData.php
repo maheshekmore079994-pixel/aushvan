@@ -2,6 +2,7 @@
 
 namespace App\Domain\Reports;
 
+use App\Domain\Backup\BackupFolder;
 use App\Domain\Catalog\ProductPresenter;
 use App\Domain\Catalog\ProductQuery;
 use App\Domain\Shared\ShopClock;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 final class DashboardData
 {
     public const TREND_DAYS = 14;
+
+    public function __construct(private BackupFolder $backups) {}
 
     public function for(User $user): array
     {
@@ -76,6 +79,10 @@ final class DashboardData
 
         if (! $user->can(Permission::REPORTS_FINANCIAL)) {
             unset($data['mine']['profit_paise']);
+        }
+
+        if ($user->can(Permission::BACKUP_MANAGE)) {
+            $data['backup'] = $this->backups->status($user->store);
         }
 
         return $data;
