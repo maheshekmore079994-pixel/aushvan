@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus, Search, Stethoscope } from 'lucide-react';
+import { Pencil, Plus, Stethoscope } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Badge, Button, Card, CheckField, EmptyState, Modal, PageHeader, Spinner, TextField } from '@/components/ui';
+import { Alert, Badge, Button, Card, CheckField, EmptyState, Modal, PageHeader, SearchBox, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
 import { useSession } from '@/features/auth/session';
 import type { Doctor } from '@/features/sales/api';
@@ -31,17 +31,7 @@ export function DoctorsPage() {
                 )}
             </PageHeader>
 
-            <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft" aria-hidden />
-                <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    aria-label={t('doctors.search')}
-                    placeholder={t('doctors.search')}
-                    className="block min-h-12 w-full rounded-lg border border-line bg-white pl-10 pr-4"
-                />
-            </div>
+            <SearchBox value={search} onChange={setSearch} label={t('doctors.search')} />
 
             {doctors.isError && <Alert>{t('app.error_generic')}</Alert>}
             {doctors.isPending && <Spinner label={t('common.loading')} />}

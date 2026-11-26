@@ -3,7 +3,7 @@
  * Sizes follow docs/UI_UX_GUIDELINES.md: controls are at least 44px tall, text 16px.
  */
 import { clsx } from 'clsx';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, Search, X } from 'lucide-react';
 import { Mascot, type MascotMood } from './Mascot';
 import {
     useEffect,
@@ -344,6 +344,25 @@ export function Modal({ title, open, onClose, closeLabel, keepMounted = false, c
 }
 
 /** Title row of a page: heading, an optional line under it, and the page's main buttons on the right. */
+/** The one search box every list screen uses: same height, icon and shadow as the product list. */
+export function SearchBox({ value, onChange, label, autoFocus, onKeyDown, className }: { value: string; onChange: (value: string) => void; label: string; autoFocus?: boolean; onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void; className?: string }) {
+    return (
+        <div className={clsx('relative', className)}>
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft" aria-hidden />
+            <input
+                type="search"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                onKeyDown={onKeyDown}
+                autoFocus={autoFocus}
+                aria-label={label}
+                placeholder={label}
+                className="block min-h-10 w-full rounded-lg border border-line bg-white pl-10 pr-4 text-base shadow-card focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+            />
+        </div>
+    );
+}
+
 export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: string; children?: ReactNode }) {
     return (
         <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">

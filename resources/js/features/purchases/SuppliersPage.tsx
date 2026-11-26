@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { Search, Truck, UserPlus } from 'lucide-react';
+import { Truck, UserPlus } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { Alert, Button, Card, Modal, SelectField, Spinner, TextField } from '@/components/ui';
+import { Alert, Button, Card, Modal, PageHeader, SearchBox, SelectField, Spinner, TextField } from '@/components/ui';
 import { useSession } from '@/features/auth/session';
 import { api, ApiError, newIdempotencyKey } from '@/lib/api';
 import { formatMoney, parseRupees } from '@/lib/money';
@@ -30,14 +30,13 @@ export function SuppliersPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-xl font-semibold tracking-tight">{t('nav.suppliers')}</h1>
+            <PageHeader title={t('nav.suppliers')}>
                 {can('suppliers.manage') && (
                     <Button onClick={() => setAdding(true)} icon={<UserPlus className="size-5" aria-hidden />}>
                         {t('suppliers.add')}
                     </Button>
                 )}
-            </div>
+            </PageHeader>
 
             {suppliers.data && (
                 <div className="rounded-lg bg-warning-soft px-5 py-4">
@@ -58,18 +57,7 @@ export function SuppliersPage() {
                 </Alert>
             )}
 
-            <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft" aria-hidden />
-                <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    autoFocus
-                    aria-label={t('suppliers.search')}
-                    placeholder={t('suppliers.search')}
-                    className="block min-h-12 w-full rounded-lg border border-line bg-white pl-10 pr-4"
-                />
-            </div>
+            <SearchBox value={search} onChange={setSearch} label={t('suppliers.search')} autoFocus />
             <div className="flex gap-2">
                 <button type="button" className={chip(!owingOnly)} aria-pressed={!owingOnly} onClick={() => setOwingOnly(false)}>
                     {t('suppliers.all')}

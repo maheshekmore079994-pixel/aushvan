@@ -4,7 +4,7 @@ import { ArrowDownToLine, ArrowUpFromLine, History, Lock, LockOpen, Printer, Rot
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Modal, SelectField, Spinner, TextField } from '@/components/ui';
+import { Alert, Badge, Button, Card, Modal, PageHeader, SelectField, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
 import { useSession } from '@/features/auth/session';
 import { api, ApiError, NetworkError, newIdempotencyKey } from '@/lib/api';
@@ -43,11 +43,7 @@ export function DayPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h1 className="text-xl font-semibold tracking-tight">{t('day.title')}</h1>
-                    <p className="text-ink-soft">{open ? t('day.open_since', { date: dateText(open.business_date), by: open.opened_by ?? '' }) : t('day.not_open')}</p>
-                </div>
+            <PageHeader title={t('day.title')} subtitle={open ? t('day.open_since', { date: dateText(open.business_date), by: open.opened_by ?? '' }) : t('day.not_open')}>
                 <div className="flex flex-wrap gap-2 print:hidden">
                     <Link to="/day/history" className="inline-flex">
                         <Button variant="secondary" icon={<History className="size-4" aria-hidden />}>
@@ -78,7 +74,7 @@ export function DayPage() {
                         </>
                     )}
                 </div>
-            </div>
+            </PageHeader>
 
             {!open && last && (
                 <Card title={t('day.last_closed', { date: dateText(last.business_date) })}>

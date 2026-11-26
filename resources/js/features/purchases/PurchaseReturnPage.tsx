@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { ArrowLeft, Printer, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, Printer, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, SelectField, Spinner, TextField } from '@/components/ui';
+import { Alert, Badge, Button, Card, SearchBox, SelectField, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
 import { useUnitLabel } from '@/features/products/api';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/features/sales/api';
@@ -109,17 +109,7 @@ export function PurchaseReturnPage() {
                         onChange={(v) => setSupplierId(v === '' ? null : Number(v))}
                         options={[{ value: '', label: t('purchases.any_supplier') }, ...(suppliers.data?.data ?? []).map((s) => ({ value: String(s.id), label: s.name }))]}
                     />
-                    <div className="relative mt-3">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft" aria-hidden />
-                        <input
-                            type="search"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            aria-label={t('purchases.lot_search')}
-                            placeholder={t('purchases.lot_search')}
-                            className="block min-h-11 w-full rounded-lg border border-line bg-white pl-10 pr-4"
-                        />
-                    </div>
+                    <SearchBox className="mt-3" value={search} onChange={setSearch} label={t('purchases.lot_search')} />
                     <div className="mt-2 flex gap-2">
                         <button type="button" className={chip(!expiredOnly)} aria-pressed={!expiredOnly} onClick={() => setExpiredOnly(false)}>
                             {t('stock.any_stock')}

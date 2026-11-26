@@ -1,9 +1,9 @@
 import { clsx } from 'clsx';
-import { Plus, Search, Undo2 } from 'lucide-react';
+import { Plus, Undo2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Alert, Button, Card, EmptyState, Spinner } from '@/components/ui';
+import { Alert, Button, Card, EmptyState, PageHeader, SearchBox, Spinner } from '@/components/ui';
 import { formatMoney } from '@/lib/money';
 import { usePurchases } from './api';
 import { StatusBadge } from './SupplierPage';
@@ -24,34 +24,25 @@ export function PurchasesPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-xl font-semibold tracking-tight">{t('nav.purchases')}</h1>
-                <div className="flex gap-2">
-                    <Link to="/purchase-returns/new" className="inline-flex">
-                        <Button variant="secondary" icon={<Undo2 className="size-5" aria-hidden />}>
-                            {t('purchases.return')}
-                        </Button>
-                    </Link>
-                    <Link to="/purchases/new" className="inline-flex">
-                        <Button icon={<Plus className="size-5" aria-hidden />}>{t('purchases.new')}</Button>
-                    </Link>
-                </div>
-            </div>
+            <PageHeader title={t('nav.purchases')}>
+                <Link to="/purchase-returns/new" className="inline-flex">
+                    <Button variant="secondary" icon={<Undo2 className="size-5" aria-hidden />}>
+                        {t('purchases.return')}
+                    </Button>
+                </Link>
+                <Link to="/purchases/new" className="inline-flex">
+                    <Button icon={<Plus className="size-5" aria-hidden />}>{t('purchases.new')}</Button>
+                </Link>
+            </PageHeader>
 
-            <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft" aria-hidden />
-                <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                    aria-label={t('purchases.search')}
-                    placeholder={t('purchases.search')}
-                    className="block min-h-12 w-full rounded-lg border border-line bg-white pl-10 pr-4"
-                />
-            </div>
+            <SearchBox
+                value={search}
+                onChange={(v) => {
+                    setSearch(v);
+                    setPage(1);
+                }}
+                label={t('purchases.search')}
+            />
             <div className="flex flex-wrap gap-2">
                 {FILTERS.map((f) => (
                     <button

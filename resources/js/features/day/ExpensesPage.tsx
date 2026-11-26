@@ -4,7 +4,7 @@ import type { TFunction } from 'i18next';
 import { Ban, Plus, Settings2 } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Button, Card, CheckField, Modal, SelectField, Spinner, TextField } from '@/components/ui';
+import { Alert, Button, Card, CheckField, Modal, PageHeader, SelectField, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
 import { useSession } from '@/features/auth/session';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/features/sales/api';
@@ -41,19 +41,16 @@ export function ExpensesPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-xl font-semibold tracking-tight">{t('expenses.title')}</h1>
-                <div className="flex gap-2">
-                    {can('settings.manage') && (
-                        <Button variant="secondary" onClick={() => setHeads(true)} icon={<Settings2 className="size-4" aria-hidden />}>
-                            {t('expenses.heads')}
-                        </Button>
-                    )}
-                    <Button onClick={() => setAdding(true)} icon={<Plus className="size-5" aria-hidden />}>
-                        {t('expenses.add')}
+            <PageHeader title={t('expenses.title')}>
+                {can('settings.manage') && (
+                    <Button variant="secondary" onClick={() => setHeads(true)} icon={<Settings2 className="size-4" aria-hidden />}>
+                        {t('expenses.heads')}
                     </Button>
-                </div>
-            </div>
+                )}
+                <Button onClick={() => setAdding(true)} icon={<Plus className="size-5" aria-hidden />}>
+                    {t('expenses.add')}
+                </Button>
+            </PageHeader>
 
             <Card>
                 <div className="grid gap-3 sm:grid-cols-3">

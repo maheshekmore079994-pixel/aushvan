@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { ArrowLeft, HandCoins, Pencil, Printer, Search, Undo2, UserPlus, Wrench } from 'lucide-react';
+import { ArrowLeft, HandCoins, Pencil, Printer, Undo2, UserPlus, Wrench } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Modal, SelectField, Spinner, TextField } from '@/components/ui';
+import { Alert, Badge, Button, Card, Modal, SearchBox, SelectField, Spinner, TextField } from '@/components/ui';
 import { useToast } from '@/components/toast';
 import { useSession } from '@/features/auth/session';
 import { api, ApiError, NetworkError, newIdempotencyKey } from '@/lib/api';
@@ -44,18 +44,7 @@ export function UdharPage() {
                 </div>
             )}
 
-            <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft" aria-hidden />
-                <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    autoFocus
-                    aria-label={t('customers.search')}
-                    placeholder={t('customers.search')}
-                    className="block min-h-12 w-full rounded-lg border border-line bg-white pl-10 pr-4"
-                />
-            </div>
+            <SearchBox value={search} onChange={setSearch} label={t('customers.search')} autoFocus />
             <div className="flex gap-2">
                 <button type="button" className={chip(owingOnly)} aria-pressed={owingOnly} onClick={() => setOwingOnly(true)}>
                     {t('udhar.owing')}
