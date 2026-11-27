@@ -209,6 +209,14 @@ the demo script's "Enter twice" step.
 | Y4 | Anyone who may close the day (cashier, pharmacist, manager) may also record a bank deposit or owner withdrawal; both are logged. | A record, not money, but the owner may want withdrawals owner-only. | Owner decision: a separate permission. |
 | Y5 | No day-closing print layout yet beyond the browser's print of the screen (N5). | Printed summary is the screen. | A compact print layout with the shop header when printing is tested on a real printer. |
 
+## Hosting on cPanel without a terminal (2026-11-28)
+
+| # | Issue | Impact | Action |
+|---|---|---|---|
+| H1 | The friend's cPanel account has no Terminal/SSH, so setup and updates run from the cron line (`app:ready`, D-064) up to a minute after the files are in place. There is no web page that shows the result; `storage/logs/app-ready.log` is read through File Manager. | A wrong `.env` line is found a minute later in a log file, not on screen. | A small status page or a setup screen for the first run if hosting is sold to more shops. |
+| H2 | `backup:restore` needs a terminal; without one a server backup is restored by downloading it and restoring into the desktop build. | Server restores are a developer task until the restore screen exists. | The restore screen (plan). |
+| H3 | AutoSSL had not issued for `aushvan.naturepestservices.com` at the first look (self-signed shown). Sign-in refuses plain http by design (secure cookie), so nothing can be tested on the host until it issues. | Blocks the hosted demo. | Owner runs AutoSSL / checks the DNS record of the subdomain (HOSTING_CPANEL.md step 2). |
+
 ## Purchases and suppliers (2026-11-26)
 
 | # | Issue | Impact | Action |

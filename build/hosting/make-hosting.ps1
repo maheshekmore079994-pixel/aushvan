@@ -49,7 +49,9 @@ Get-ChildItem (Join-Path $app 'vendor\mpdf\mpdf\ttfonts') -File |
 
 Step 'Writing the .env template and the post-upload commands'
 @(
-    '# AUSHVAN hosting settings. Copy to .env next to artisan and fill in the four MYSQL lines and the two domain lines.',
+    '# AUSHVAN hosting settings. Copy to .env next to artisan and fill in the DB_DATABASE / DB_USERNAME / DB_PASSWORD lines',
+    '# (exactly as cPanel > MySQL Databases shows them, prefix included if there is one) and the two domain lines.',
+    '# Leave APP_KEY empty: the application fills it in itself.',
     'APP_NAME="AUSHVAN"',
     'APP_ENV=production',
     'APP_KEY=',
@@ -79,15 +81,12 @@ Step 'Writing the .env template and the post-upload commands'
 
 @(
     '#!/bin/sh',
-    '# Run once after uploading (cPanel Terminal, inside the aushvan folder), and again after every update.',
+    '# Optional: on a host WITH a terminal, run this inside the aushvan folder after uploading to be ready at once.',
+    '# Without a terminal nothing is needed: the cron line in docs/HOSTING_CPANEL.md runs the same `app:ready` every minute.',
     'set -e',
     'PHP=${PHP:-php}',
     'if [ ! -f .env ]; then cp .env.hosting .env; echo "Copied .env.hosting to .env: fill in the database and domain lines, then run this again."; exit 1; fi',
-    'grep -q "^APP_KEY=base64" .env || $PHP artisan key:generate --force --no-interaction',
-    '$PHP artisan migrate --force --no-interaction',
-    '$PHP artisan config:cache',
-    '$PHP artisan route:cache',
-    '$PHP artisan view:cache',
+    '$PHP artisan app:ready',
     'echo "AUSHVAN is ready. Open the site in a browser to set up the shop."'
 ) -join "`n" | ForEach-Object { [IO.File]::WriteAllText((Join-Path $app 'post-upload.sh'), $_ + "`n") } # LF only, so sh reads it
 

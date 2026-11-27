@@ -4,8 +4,8 @@ import { useId } from 'react';
 export type MascotMood = 'hello' | 'happy' | 'empty' | 'sad';
 
 /**
- * Ashu (short for Ashwini / Ashwin; owner decision D-066) — the shop's own mascot: a capsule in a shopkeeper's cap.
- * The capsule stands for the medical counter, the cap and apron for the general store.
+ * Ashu (short for Ashwini; owner decision D-066, female) — the shop's own mascot: a capsule in a shopkeeper's cap.
+ * The capsule stands for the medical counter, the cap and apron for the general store; the bow and lashes are hers.
  * Original artwork, drawn here as SVG so it needs no image file and stays sharp at any size.
  *
  * It is decoration: always hidden from screen readers, and it never carries information
@@ -62,9 +62,16 @@ export function Mascot({ mood = 'hello', className, still = false }: { mood?: Ma
                 <path d="M31 46 Q33 17 60 17 Q87 17 89 46 Z" fill="#4353e0" />
                 <rect x="28" y="42" width="72" height="8" rx="4" fill="#3340b8" />
                 <circle cx="60" cy="19" r="3.5" fill="#3340b8" />
+                {/* her bow, pinned to the cap band */}
+                <g transform="translate(86 44)">
+                    <path d="M0 0 l-9 -5 q-3 5 0 10 z M0 0 l9 -5 q3 5 0 10 z" fill="#f05d8a" />
+                    <circle r="2.6" fill="#c9396a" />
+                </g>
 
                 {/* face */}
                 <g className="mascot-eyes">
+                    <path d={`M45.5 ${54 + lookDown} l-2.5 -2 M48.5 ${52.8 + lookDown} l-1 -2.6`} stroke="#1b2236" strokeWidth="1.3" strokeLinecap="round" />
+                    <path d={`M74.5 ${54 + lookDown} l2.5 -2 M71.5 ${52.8 + lookDown} l1 -2.6`} stroke="#1b2236" strokeWidth="1.3" strokeLinecap="round" />
                     <circle cx="50" cy={59 + lookDown} r="3.6" fill="#1b2236" />
                     <circle cx="70" cy={59 + lookDown} r="3.6" fill="#1b2236" />
                     <circle cx="51.2" cy={57.8 + lookDown} r="1.1" fill="#fff" />

@@ -34,7 +34,8 @@ A feature is ticked only when it meets the definition of done in `CLAUDE.md`.
   shop configurable (`DEMO_*` in .env; currently Jay Mahakali Medical and General Stores, Khadavli), first
   Windows package built and proven (KNOWN_ISSUES D1–D6).
 - **MySQL:** the suite now runs on the MariaDB found on this machine (WAMP, port 3307); see KNOWN_ISSUES P1.
-- **Blocked on:** nothing. Awaiting the AUSHVAN logo file, the answers to Q2, Q3, Q5, the cPanel details (subdomain, database, FTP) and the mascot gender (Ashwini / Ashwin, D-066).
+- **2026-11-28 (hosting without a terminal):** the host has no SSH/Terminal, so `php artisan app:ready` (key, pending migrations, caches; silent when nothing is pending) was added and the documented cron line runs it every minute before `schedule:run`; `post-upload.sh` now just calls it; `HOSTING_CPANEL.md` rewritten for File Manager only. Mascot decided female (Ashwini): bow and lashes added (D-066). Hosting zip rebuilt.
+- **Blocked on:** the cPanel side — AutoSSL has not issued for `aushvan.naturepestservices.com` (self-signed), the cron line still has the literal `<cpanel-user>`, and the zip has not been uploaded (no FTP details yet; the owner can upload through File Manager). Also still awaiting the AUSHVAN logo file and the answers to Q2, Q3, Q5.
 
 ## Open questions for the owner
 
